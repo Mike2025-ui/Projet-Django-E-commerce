@@ -12,6 +12,7 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==45.0.3
 defusedxml==0.7.1
+dj-database-url==3.0.0
 Django==5.2.1
 django-cors-headers==4.7.0
 djangorestframework==3.16.0
@@ -37,6 +38,7 @@ social-auth-app-django==5.4.3
 social-auth-core==4.6.1
 sqlparse==0.5.3
 twilio==9.6.2
+typing_extensions==4.14.0
 tzdata==2025.2
 uritemplate==4.1.1
 urllib3==2.4.0
