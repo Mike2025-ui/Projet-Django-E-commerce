@@ -16,38 +16,46 @@ load_dotenv()
 # Chemin de base du projet
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Ajout dossier apps (optionnel)
+# Ajout du dossier apps dans le path Python (optionnel)
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 # Sécurité
 SECRET_KEY = os.getenv('SECRET_KEY', 'change-moi-urgent-en-prod')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # Autoriser Render ou localhost
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# ALLOWED_HOSTS attend une liste, on split la string par virgule et on strip les espaces
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')]
 
 # Configuration base de données
 if os.environ.get('RENDER'):
-    # En production sur Render, utilise PostgreSQL via les variables d'environnement
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB'),
-            'USER': os.getenv('POSTGRES_USER'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-            'HOST': os.getenv('POSTGRES_HOST'),
-            'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    # En production sur Render, utilise PostgreSQL via DATABASE_URL ou variables d'environnement
+    # dj_database_url est pratique pour parser DATABASE_URL complète (ex: postgres://user:pass@host:port/dbname)
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    if DATABASE_URL:
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600),
         }
-    }
+    else:
+        # Fallback si DATABASE_URL non défini, utilise variables individuelles
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.getenv('POSTGRES_DB'),
+                'USER': os.getenv('POSTGRES_USER'),
+                'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+                'HOST': os.getenv('POSTGRES_HOST'),
+                'PORT': os.getenv('POSTGRES_PORT', '5432'),
+            }
+        }
 else:
-    # En local, utilise SQLite (aucune config nécessaire)
+    # En local, utilise SQLite (aucune config supplémentaire nécessaire)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
 
 # Applications installées
 INSTALLED_APPS = [
@@ -72,7 +80,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'accounts.middleware.ActiveUserMiddleware',  # middleware custom si tu as
+    'accounts.middleware.ActiveUserMiddleware',  # Middleware custom si tu en as un
 ]
 
 ROOT_URLCONF = 'projet1djan.urls'
@@ -126,6 +134,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Utilisateur personnalisé
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
-# Redirections
+# Redirections après connexion / déconnexion
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
+
