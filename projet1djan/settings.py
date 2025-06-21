@@ -19,7 +19,25 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 SECRET_KEY = 'django-insecure-fzj0)ue7%-p+f!y5t5c%!^62d9^mq!rrdk%i9naritk#n=3)17'
 
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+import os
+import dj_database_url  # pour la base Render PostgreSQL
+
+# ...
+
+# Autoriser Render à accéder au site
+ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME', '127.0.0.1')]
+
+# Configuration par défaut (local SQLite)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Configuration pour Render (production)
+if os.environ.get('RENDER'):
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
 # Applications installées
 INSTALLED_APPS = [
