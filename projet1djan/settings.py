@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 SECRET_KEY = 'django-insecure-fzj0)ue7%-p+f!y5t5c%!^62d9^mq!rrdk%i9naritk#n=3)17'
 
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Applications installées
 INSTALLED_APPS = [
