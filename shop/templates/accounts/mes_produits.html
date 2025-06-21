@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Mes produits</h2>
+    <a href="{% url 'ajouter_produit' %}" class="btn btn-success mb-3">Ajouter un produit</a>
+    <div class="row">
+        {% for produit in produits %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="{{ produit.image.url }}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{ produit.nom }}</h5>
+                    <p class="card-text">{{ produit.description|truncatewords:20 }}</p>
+                    <p><strong>{{ produit.prix }} FCFA</strong></p>
+                    <a href="{% url 'modifier_produit' produit.pk %}" class="btn btn-warning btn-sm">Modifier</a>
+                    <a href="{% url 'supprimer_produit' produit.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Vous n'avez encore ajouté aucun produit.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

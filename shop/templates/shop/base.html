@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mike Shop</title>
+
+    <!-- CSS Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" />
+
+    <!-- jQuery & Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
+
+  <body style="background-color: rgba(212, 223, 235, 0.993);">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <!-- NAVBAR -->
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="{% url 'index' %}">shop-in-Line</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+              <ul class="navbar-nav">
+                <li class="nav-item active">
+                  <a class="nav-link" href="{% url 'dashboard' %}">Accueil</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'index' %}">Produits</a>
+                </li>
+                <li class="nav-item">
+                  <button
+                    id="panier"
+                    type="button"
+                    class="btn btn-secondary btn-sm position-relative"
+                    style="background: orange; border-radius: 5px; padding: 4px 8px;"
+                    data-toggle="popover"
+                    data-placement="bottom"
+                    data-content=""
+                  >
+                    Panier 🛒
+                    <span
+                      id="compteur-panier"
+                      class="badge badge-danger position-absolute"
+                      style="top: 0; right: -10px; font-size: 0.6rem"
+                    >0</span>
+                  </button>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown">
+                    Catégories
+                  </a>
+                  <div class="dropdown-menu">
+                    {% for cat in categories_nav %}
+                      <a class="dropdown-item" href="{% url 'index' %}?category={{ cat.nom }}">{{ cat.nom }}</a>
+                    {% endfor %}
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+          <!-- END NAVBAR -->
+
+        </div>
+      </div>
+
+      <!-- CONTENU -->
+      {% block content %}{% endblock %}
+    </div>
+
+    <!-- SCRIPTS supplémentaires -->
+    {% block js %}{% endblock %}
+  </body>
+</html>

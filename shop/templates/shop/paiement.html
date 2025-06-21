@@ -1,0 +1,283 @@
+{% extends 'shop/base.html' %} {% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <h1 class="text-center mt-5 mb-4">Liste des produits du panier</h1>
+    <ul class="list-group" id="item_list"></ul>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <form method="post" id="form-commande" class="border p-4 bg-light rounded">
+      {% csrf_token %}
+      <input type="hidden" id="items" name="items" />
+      <h1 class="text-center mt-5 mb-4">Renseignez vos informations</h1>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="nom">NOM</label>
+          <input
+            name="nom"
+            id="nom"
+            type="text"
+            class="form-control"
+            placeholder="YAO ....JOSEPH-MICHAEL" required />
+        </div>
+        <div class="form-group col-md-6">
+          <label for="email">Email</label>
+          <input
+            name="email"
+            id="email"
+            type="email"
+            class="form-control"
+            placeholder="josephmichaelyaokonan25@gmail.com" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="address">Adresse</label>
+        <input
+          name="address"
+          id="address"
+          type="text"
+          class="form-control"
+          placeholder="bouaké,(Ahougnanssou)...." required />
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="ville">Ville</label>
+          <input
+            name="ville"
+            id="ville"
+            type="text"
+            class="form-control"
+            placeholder="Bouaké" required />
+        </div>
+        <div class="form-group col-md-4">
+          <label for="pays">Pays</label>
+          <select id="pays" name="pays" class="form-control">
+            <option selected>Cote d'ivoire</option>
+            <option>Mali</option>
+            <option>Tchad</option>
+            <option>France</option>
+            <option>Burkina Faso</option>
+            <option>Ghana</option>
+            <option>Benin</option>
+            <option>Senegal</option>
+            <option>Guinee</option>
+            <option>Gambie</option>
+          </select>
+        </div>
+        <div class="form-group col-md-2">
+          <label for="zipcode">Code postal</label>
+          <input name="zipcode" id="zipcode" type="text" class="form-control"  />
+        </div>
+        <div class="form-group col-md-2">
+          <label for="zipcode" style="color: rgb(167, 0, 0)"
+            >Somme a payer</label
+          >
+          <input
+            name="prix_total"
+            id="prix_total"
+            type="hidden"
+            class="bg-dark text-warning form-control"
+          />
+          <span
+            name="prix_total_affiche"
+            id="prix_total_affiche"
+            type="text"
+            readonly
+            class="bg-dark text-warning form-control"
+          ></span>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Commander</button>
+      <input type="hidden" name="panier" id="panier-commande" />
+      <input type="hidden" id="quantite_total" name="quantite_total" />
+    </form>
+
+    <div class="my-4 text-center">
+      <fieldset
+        style="
+          display: inline-block;
+          border: 2px dashed #444;
+          padding: 10px 20px;
+          border-radius: 10px;
+        "
+      >
+        <legend style="padding: 0 10px; font-weight: bold">
+          passez une Commander ou payer ici 👇
+        </legend>
+      </fieldset>
+    </div>
+    <form
+      method="POST"
+      action="{% url 'payer' %}"
+      class="border p-4 bg-light rounded"
+      id="form-payer"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="product_id" value="{{ product.id }}" />
+      <input type="hidden" name="nom" id="nom_payer" />
+      <input type="hidden" name="prix" id="prix_payer" />
+      <input type="hidden" name="email" id="email_payer" />
+      <input type="hidden" name="address" id="address_payer" />
+      <input type="hidden" name="ville" id="ville_payer" />
+      <input type="hidden" name="pays" id="pays_payer" />
+      <input type="hidden" name="zipcode" id="zipcode_payer" />
+      <input type="hidden" name="quantite_total" id="quantite_total_payer" />
+      <input type="hidden" name="items" id="items_payer" />
+
+      <div class="form-group">
+        <label for="numero">Numéro de téléphone</label>
+        <input type="text" class="form-control" name="numero" required />
+        <small
+          id="numero-message"
+          class="form-text text-danger"
+          style="display: none"
+        ></small>
+      </div>
+
+      <div class="form-group">
+        <label for="operateur">Choisir l'opérateur</label>
+        <select class="form-control" name="operateur" required>
+          <option value="orange">Orange Money</option>
+          <option value="mtn">MTN MoMo</option>
+          <option value="moov">Moov Money</option>
+          <option value="wave">Wave</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">
+        Payer maintenant
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %} {% block js %}
+<script type="text/javascript">
+  let panier = {};
+  if (localStorage.getItem("panier") != null) {
+    panier = JSON.parse(localStorage.getItem("panier"));
+  }
+
+  // Vérifier si le panier est vide
+  if (Object.keys(panier).length === 0) {
+    $("#item_list").html(
+      '<li class="list-group-item text-center text-danger font-weight-bold">Veuillez ajouter au moins un produit au panier</li>'
+    );
+    // Désactiver les boutons de commande et paiement
+    $("button[type=submit]").prop("disabled", true);
+  } else {
+    let quantite_total = 0;
+    let prix_total = 0;
+
+    for (let item in panier) {
+      if (panier.hasOwnProperty(item)) {
+        let nom = panier[item][1];
+        let quantite = panier[item][0];
+        let prixUnitaire = panier[item][2] / quantite;
+        let prixProduit = quantite * prixUnitaire;
+
+        quantite_total += quantite;
+        prix_total += prixProduit;
+
+        let itemString = `
+          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <strong>${nom}</strong>
+            <span class="badge badge-primary badge-pill ml-2">${quantite} Qte(s)</span>
+            <span class="badge badge-info badge-pill ml-2">${prixUnitaire.toLocaleString()} FCFA (unité)</span>
+            <span class="badge badge-warning badge-pill ml-2">${prixProduit.toLocaleString()} FCFA</span>
+          </li>`;
+        $("#item_list").append(itemString);
+      }
+    }
+
+    let itemTotal = `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <strong>Total général</strong>
+        <span class="badge badge-success badge-pill">${quantite_total} Qte(s)</span>
+        <span class="badge badge-success badge-pill">${prix_total.toLocaleString()} FCFA</span>
+      </li>`;
+    $("#item_list").append(itemTotal);
+
+    // Remplir les champs cachés pour l'envoi Django
+    $("#prix_total").val(prix_total);
+    $("#prix_total_affiche").text(prix_total.toLocaleString() + " FCFA");
+    $("#quantite_total").val(quantite_total);
+    $("#items").val(JSON.stringify(panier));
+
+    // Remplir le champ prix du formulaire "payer maintenant"
+    $("#prix_payer").val(prix_total);
+    $("#quantite_total_payer").val(quantite_total);
+  }
+
+  // Copier le nom du premier formulaire dans le formulaire "payer maintenant" avant soumission
+  $("#form-payer").on("submit", function () {
+    let nomClient = $("#nom").val();
+    $("#items_payer").val(localStorage.getItem("panier"));
+    $("#nom_payer").val(nomClient);
+    $("#email_payer").val($("#email").val());
+    $("#address_payer").val($("#address").val());
+    $("#ville_payer").val($("#ville").val());
+    $("#pays_payer").val($("#pays").val());
+    $("#zipcode_payer").val($("#zipcode").val());
+    // Vider le panier
+    localStorage.removeItem("panier");
+  });
+  $("#form-commande").on("submit", function () {
+    localStorage.removeItem("panier");
+  });
+
+  // Détection automatique de l'opérateur selon les deux premiers chiffres du numéro (Côte d'Ivoire)
+  $("input[name='numero']").on("input", function () {
+    let numero = $(this).val();
+    let operateur = "";
+
+    // On prend les deux premiers chiffres
+    let prefixe = numero.substring(0, 2);
+
+    // Préfixes Orange CI
+    const orangePrefixes = ["07"];
+    // Préfixes MTN CI
+    const mtnPrefixes = ["05"];
+    // Préfixes Moov CI
+    const moovPrefixes = ["01"];
+    // Préfixes Wave (si applicable, à adapter)
+    const wavePrefixes = ["07", "05", "01"];
+
+    if (orangePrefixes.includes(prefixe)) {
+      operateur = "orange";
+    } else if (mtnPrefixes.includes(prefixe)) {
+      operateur = "mtn";
+    } else if (moovPrefixes.includes(prefixe)) {
+      operateur = "moov";
+    } else if (wavePrefixes.includes(prefixe)) {
+      operateur = "wave";
+    }
+
+    if (operateur) {
+      $("select[name='operateur']").val(operateur);
+      $("#numero-message").hide();
+    } else {
+      $("#numero-message")
+        .text("Numéro inconnu : veuillez vérifier le préfixe.")
+        .show();
+      $("select[name='operateur']").val("");
+    }
+  });
+
+  $("#form-commande").on("submit", function () {
+    // Transforme le panier localStorage en liste d'objets pour le backend
+    let panierObj = [];
+    for (let key in panier) {
+        if (panier.hasOwnProperty(key)) {
+            panierObj.push({
+                produit_id: key,
+                quantite: panier[key][0],
+                prix_unitaire: panier[key][2] / panier[key][0]
+            });
+        }
+    }
+    $("#panier-commande").val(JSON.stringify(panierObj));
+    localStorage.removeItem("panier");
+});
+</script>
+{% endblock %}

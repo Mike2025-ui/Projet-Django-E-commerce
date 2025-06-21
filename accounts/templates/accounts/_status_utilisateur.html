@@ -1,0 +1,33 @@
+{% load tz %}
+{% load static %}
+
+{% comment %}
+Affiche le statut en ligne et le rôle de l'utilisateur.
+On considère un utilisateur "en ligne" s'il a une activité datant de moins de 5 minutes (300s).
+{% endcomment %}
+
+{% if user.is_authenticated %}
+    {% if last_activity %}
+        {% timezone "UTC" %}
+            {% now "U" as now_timestamp %}
+            {% with last_ts=last_activity|date:"U" %}
+                {% if last_ts >= now_timestamp|add:"-300" %}
+                    <p>
+                        <strong>Statut :</strong> <span class="text-success">En ligne</span> - 
+                        {% if user.is_staff %}
+                            Administrateur
+                        {% else %}
+                            Utilisateur
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p><strong>Statut :</strong> <span class="text-danger">Hors ligne</span></p>
+                {% endif %}
+            {% endwith %}
+        {% endtimezone %}
+    {% else %}
+        <p><strong>Statut :</strong> Inconnu</p>
+    {% endif %}
+{% else %}
+    <p><strong>Statut :</strong> Non connecté</p>
+{% endif %}
