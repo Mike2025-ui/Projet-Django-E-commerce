@@ -34,8 +34,12 @@ ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME', '127.0.0.1')]
 # Configuration par défaut (local SQLite)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # utiliser postgresql
+        'NAME': 'ecommerce_db_aih6',               # nom de ta base
+        'USER': 'ecommerce_db_aih6_user',          # utilisateur
+        'PASSWORD': 'SS5ouBiMvaQXYdGngq5nXZe2y5WmTvtU',        # mot de passe copié
+        'HOST': 'dpg-d1bak68dl3ps73efsjt0-a',      # nom d'hôte Render
+        'PORT': '5432',                             # port standard PostgreSQL
     }
 }
 
