@@ -46,6 +46,9 @@ if os.environ.get('RENDER'):
                 'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
                 'HOST': os.getenv('POSTGRES_HOST'),
                 'PORT': os.getenv('POSTGRES_PORT', '5432'),
+                'OPTIONS': {
+                    'client_encoding': 'UTF8',
+                },
             }
         }
 else:
