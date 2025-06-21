@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 import sys
 
+
 # Chemin de base
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
@@ -38,6 +39,7 @@ DATABASES = {
 # Configuration pour Render (production)
 if os.environ.get('RENDER'):
     DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+
 
 # Applications installées
 INSTALLED_APPS = [
