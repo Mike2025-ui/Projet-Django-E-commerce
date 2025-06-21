@@ -1,0 +1,35 @@
+# Fichiers Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+
+# Environnement virtuel
+env/
+venv/
+ENV/
+.venv/
+.env/
+
+# Fichiers Django
+db.sqlite3
+media/
+staticfiles/
+*.log
+
+# VS Code
+.vscode/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers de configuration secrets
+.env
+*.env
+
+# Node (si jamais tu utilises npm/yarn)
+node_modules/
+
+#
