@@ -1,15 +1,13 @@
-{% extends 'shop/base.html' %} {% block content %}
+{% extends 'shop/base.html' %} 
+{% load static %}
+{% block content %}
 <style>
-  div {
-    background-color: #f8f9fa;
-  }
   .zoom-hover {
     transition: transform 0.3s ease;
   }
   .zoom-hover:hover {
     transform: scale(1.1);
   }
-
   #toast {
     visibility: hidden;
     min-width: 250px;
@@ -24,33 +22,30 @@
     font-size: 17px;
     z-index: 1050;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out, visibility 0.5s;
+    transition: opacity 0.5s, visibility 0.5s;
   }
-
   #toast.show {
     visibility: visible;
     opacity: 1;
   }
-
   .star-rating {
     display: inline-block;
     direction: rtl;
-    font-size: 24px;
+    font-size: 2em;
   }
-
   .star-rating input[type="radio"] {
     display: none;
   }
-
   .star-rating label {
-    color: #ccc;
+    color: #e4e5e9;
     cursor: pointer;
+    transition: color 0.2s;
+    margin: 0 2px;
   }
-
   .star-rating input[type="radio"]:checked ~ label,
   .star-rating label:hover,
   .star-rating label:hover ~ label {
-    color: gold;
+    color: #ffc107 !important;
   }
 </style>
 
@@ -58,99 +53,94 @@
   <div class="col-md-6">
     <div>
       {% if product.image %}
-      <img
-        src="{{ product.image.url }}"
-        alt="{{ product.nom }}"
-        class="img-fluid zoom-hover"
-      />
+      <img src="{{ product.image.url }}" alt="{{ product.nom }}" class="img-fluid zoom-hover" />
       {% elif product.image_url %}
-      <img
-        src="{{ product.image_url }}"
-        alt="{{ product.nom }}"
-        class="img-fluid zoom-hover"
-      />
+      <img src="{{ product.image_url }}" alt="{{ product.nom }}" class="img-fluid zoom-hover" />
       {% else %}
-      <img
-        src="https://via.placeholder.com/300x200?text=Pas+d'image"
-        class="img-fluid zoom-hover"
-        alt="Pas d'image"
-      />
+      <img src="https://via.placeholder.com/300x200?text=Pas+d'image" class="img-fluid zoom-hover" alt="Pas d'image" />
       {% endif %}
     </div>
   </div>
-
   <div class="col-md-6">
     <div id="nom-produit" class="text-warning display-3">{{ product.nom }}</div>
-
     <div id="prix-produit" style="color: rgb(204, 61, 9); font-weight: bold">
       Prix : {{ product.prix }} FCFA
     </div>
-
     <div class="mt-3">{{ product.description }}</div>
     <div class="d-flex align-items-center mt-4">
-      <button
-        onclick="ajouterEtCommander('{{ product.id }}')"
-        class="btn btn-success mr-3"
-      >
+      <button onclick="ajouterEtCommander('{{ product.id }}')" class="btn btn-success mr-3">
         Acheter
       </button>
       <a href="{% url 'index' %}" class="btn btn-secondary">Retour</a>
     </div>
   </div>
 </div>
-<div>
-  <h3>Avis des clients</h3>
-  {% for review in product.reviews.all %}
-  <div style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px">
-    <strong>{{ review.user.username }}</strong>
-    <span>
-      {% for i in "12345"|slice:":review.note"|make_list %}
-      <span style="color: gold">&#9733;</span>
-      {% endfor %} {% for i in "12345"|slice:"review.note:"|make_list %}
-      <span style="color: #ccc">&#9733;</span>
-      {% endfor %} </span
-    ><br />
-    <small>Posté le {{ review.date_added }}</small>
-    <p>{{ review.commentaire }}</p>
+
+<!-- Section Avis clients -->
+<div class="mt-5">
+  <h3 class="mb-4 font-weight-bold">Avis des clients</h3>
+  <div class="mb-4">
+    {% for review in product.reviews.all %}
+      <div class="media mb-4 p-3 rounded shadow-sm bg-white">
+          {% if review.user.photo %}
+            <img src="{{ review.user.photo.url }}" class="mr-3 rounded-circle border" style="width:48px;height:48px;" alt="{{ review.user.username }}">
+          {% else %}
+            <img src="{% static 'default-avatar.png' %}" class="mr-3 rounded-circle border" style="width:48px;height:48px;" alt="Avatar par défaut">
+          {% endif %}
+        <div class="media-body">
+          <div class="d-flex align-items-center mb-1">
+            <strong class="mr-2">{{ review.user.username }}</strong>
+            <span>
+              {% for i in "12345"|slice:":review.note"|make_list %}
+                <span style="color: #ffc107; font-size: 1.2em;">&#9733;</span>
+              {% endfor %}
+              {% for i in "12345"|slice:"review.note:"|make_list %}
+                <span style="color: #e4e5e9; font-size: 1.2em;">&#9733;</span>
+              {% endfor %}
+            </span>
+            <small class="text-muted ml-3">{{ review.date_added|date:"d/m/Y H:i" }}</small>
+          </div>
+          <div class="text-secondary">{{ review.commentaire }}</div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="alert alert-light border text-center">Aucun avis pour ce produit.</div>
+    {% endfor %}
   </div>
-  {% empty %}
-  <p>Aucun avis pour ce produit.</p>
-  {% endfor %} {% if user.is_authenticated %}
-  <form method="post">
-    {% csrf_token %}
-    <label>Note :</label>
-    <div class="star-rating">
-      <input type="radio" name="note" value="5" id="note-5" required /><label
-        for="note-5"
-        >&#9733;</label
-      >
-      <input type="radio" name="note" value="4" id="note-4" /><label
-        for="note-4"
-        >&#9733;</label
-      >
-      <input type="radio" name="note" value="3" id="note-3" /><label
-        for="note-3"
-        >&#9733;</label
-      >
-      <input type="radio" name="note" value="2" id="note-2" /><label
-        for="note-2"
-        >&#9733;</label
-      >
-      <input type="radio" name="note" value="1" id="note-1" /><label
-        for="note-1"
-        >&#9733;</label
-      >
+
+  {% if user.is_authenticated %}
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light font-weight-bold">Laisser un avis</div>
+    <div class="card-body">
+      <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="mb-2">Note :</label>
+          <div class="star-rating">
+            {% for i in "54321" %}
+              <input type="radio" name="note" value="{{ i }}" id="note-{{ i }}" required>
+              <label for="note-{{ i }}">&#9733;</label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="commentaire">Commentaire :</label>
+          <textarea name="commentaire" id="commentaire" class="form-control" rows="3" required placeholder="Votre avis..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-success px-4">Envoyer l'avis</button>
+      </form>
     </div>
-    <br /><br />
-    <label>Commentaire :</label><br />
-    <textarea name="commentaire" rows="4" cols="40" required></textarea><br />
-    <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px;">Envoyer l'avis</button>
-  </form>
+  </div>
   {% else %}
-  <p><a href="{% url 'login' %}">Connectez-vous</a> pour laisser un avis.</p>
+    <div class="alert alert-info text-center">
+      <a href="{% url 'login' %}">Connectez-vous</a> pour laisser un avis.
+    </div>
   {% endif %}
 </div>
-{% endblock %} {% block js %}
+
+{% endblock %}
+
+{% block js %}
 <script type="text/javascript">
   let panier = localStorage.getItem("panier")
     ? JSON.parse(localStorage.getItem("panier"))

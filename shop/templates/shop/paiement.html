@@ -1,4 +1,5 @@
-{% extends 'shop/base.html' %} {% block content %}
+{% extends 'shop/base.html' %} 
+{% block content %}
 <div class="row">
   <div class="col-md-12">
     <h1 class="text-center mt-5 mb-4">Liste des produits du panier</h1>
@@ -14,41 +15,21 @@
       <div class="form-row">
         <div class="form-group col-md-6">
           <label for="nom">NOM</label>
-          <input
-            name="nom"
-            id="nom"
-            type="text"
-            class="form-control"
-            placeholder="YAO ....JOSEPH-MICHAEL" required />
+          <input name="nom" id="nom" type="text" class="form-control" placeholder="YAO ....JOSEPH-MICHAEL" required />
         </div>
         <div class="form-group col-md-6">
           <label for="email">Email</label>
-          <input
-            name="email"
-            id="email"
-            type="email"
-            class="form-control"
-            placeholder="josephmichaelyaokonan25@gmail.com" required />
+          <input name="email" id="email" type="email" class="form-control" placeholder="josephmichaelyaokonan25@gmail.com" required />
         </div>
       </div>
       <div class="form-group">
         <label for="address">Adresse</label>
-        <input
-          name="address"
-          id="address"
-          type="text"
-          class="form-control"
-          placeholder="bouaké,(Ahougnanssou)...." required />
+        <input name="address" id="address" type="text" class="form-control" placeholder="bouaké,(Ahougnanssou)...." required />
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
           <label for="ville">Ville</label>
-          <input
-            name="ville"
-            id="ville"
-            type="text"
-            class="form-control"
-            placeholder="Bouaké" required />
+          <input name="ville" id="ville" type="text" class="form-control" placeholder="Bouaké" required />
         </div>
         <div class="form-group col-md-4">
           <label for="pays">Pays</label>
@@ -70,22 +51,9 @@
           <input name="zipcode" id="zipcode" type="text" class="form-control"  />
         </div>
         <div class="form-group col-md-2">
-          <label for="zipcode" style="color: rgb(167, 0, 0)"
-            >Somme a payer</label
-          >
-          <input
-            name="prix_total"
-            id="prix_total"
-            type="hidden"
-            class="bg-dark text-warning form-control"
-          />
-          <span
-            name="prix_total_affiche"
-            id="prix_total_affiche"
-            type="text"
-            readonly
-            class="bg-dark text-warning form-control"
-          ></span>
+          <label for="zipcode" style="color: rgb(167, 0, 0)">Somme a payer</label>
+          <input name="prix_total" id="prix_total" type="hidden" class="bg-dark text-warning form-control" />
+          <span name="prix_total_affiche" id="prix_total_affiche" type="text" readonly class="bg-dark text-warning form-control"></span>
         </div>
       </div>
       <button type="submit" class="btn btn-primary">Commander</button>
@@ -94,14 +62,7 @@
     </form>
 
     <div class="my-4 text-center">
-      <fieldset
-        style="
-          display: inline-block;
-          border: 2px dashed #444;
-          padding: 10px 20px;
-          border-radius: 10px;
-        "
-      >
+      <fieldset style="display: inline-block; border: 2px dashed #444; padding: 10px 20px; border-radius: 10px;">
         <legend style="padding: 0 10px; font-weight: bold">
           passez une Commander ou payer ici 👇
         </legend>
@@ -116,7 +77,7 @@
       {% csrf_token %}
       <input type="hidden" name="product_id" value="{{ product.id }}" />
       <input type="hidden" name="nom" id="nom_payer" />
-      <input type="hidden" name="prix" id="prix_payer" />
+      <input type="hidden" name="prix_total" id="prix_payer" />
       <input type="hidden" name="email" id="email_payer" />
       <input type="hidden" name="address" id="address_payer" />
       <input type="hidden" name="ville" id="ville_payer" />
@@ -124,15 +85,13 @@
       <input type="hidden" name="zipcode" id="zipcode_payer" />
       <input type="hidden" name="quantite_total" id="quantite_total_payer" />
       <input type="hidden" name="items" id="items_payer" />
+      <!-- AJOUT pour compatibilité backend -->
+      <input type="hidden" name="panier" id="panier-commande-payer" />
 
       <div class="form-group">
         <label for="numero">Numéro de téléphone</label>
         <input type="text" class="form-control" name="numero" required />
-        <small
-          id="numero-message"
-          class="form-text text-danger"
-          style="display: none"
-        ></small>
+        <small id="numero-message" class="form-text text-danger" style="display: none"></small>
       </div>
 
       <div class="form-group">
@@ -151,7 +110,8 @@
   </div>
 </div>
 
-{% endblock %} {% block js %}
+{% endblock %} 
+{% block js %}
 <script type="text/javascript">
   let panier = {};
   if (localStorage.getItem("panier") != null) {
@@ -209,10 +169,12 @@
     $("#quantite_total_payer").val(quantite_total);
   }
 
-  // Copier le nom du premier formulaire dans le formulaire "payer maintenant" avant soumission
+  // Copier les infos dans le formulaire "payer maintenant" avant soumission
   $("#form-payer").on("submit", function () {
     let nomClient = $("#nom").val();
     $("#items_payer").val(localStorage.getItem("panier"));
+    console.log("PANIER AVANT ENVOI :", localStorage.getItem("panier"));
+    $("#panier-commande-payer").val(localStorage.getItem("panier")); // Correction ici
     $("#nom_payer").val(nomClient);
     $("#email_payer").val($("#email").val());
     $("#address_payer").val($("#address").val());
@@ -278,6 +240,6 @@
     }
     $("#panier-commande").val(JSON.stringify(panierObj));
     localStorage.removeItem("panier");
-});
+  });
 </script>
 {% endblock %}

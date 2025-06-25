@@ -1,6 +1,6 @@
 from django.urls import path
 from accounts import views
-from shop.views import index, detail, paiement, confirmation, payer
+from shop.views import index, detail, paiement, confirmation, payer, supprimer_commande
 from .views import commandes_reçues, export_commandes_reçues, export_commandes_reçues_pdf, register_view, dashboard_view
 from accounts.views import login_view, logout_view
 from django.shortcuts import redirect
@@ -34,12 +34,12 @@ urlpatterns = [
     path('mes-produits/', mes_produits, name='mes_produits'),
     path('mes-produits/supprimer/<int:produit_id>/', supprimer_produit, name='supprimer_produit'),
     path('modifier-produit/<int:produit_id>/', modifier_produit, name='modifier_produit'),
-    path('supprimer-produit/<int:produit_id>/', supprimer_produit, name='supprimer_produit'),
     path('commandes-reçues/', commandes_reçues, name='commandes_reçues'),
     # ...existing code...
 path('export-commandes-reçues/', export_commandes_reçues, name='export_commandes_reçues'),
 # ...existing code...
 path('export-commandes-reçues-pdf/', export_commandes_reçues_pdf, name='export_commandes_reçues_pdf'),
+path('commande/supprimer/<int:commande_id>/', supprimer_commande, name='supprimer_commande'),  # OK
 
 ]
 

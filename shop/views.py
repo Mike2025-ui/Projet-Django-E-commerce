@@ -142,13 +142,29 @@ def payer(request):
         ville = request.POST.get("ville")
         pays = request.POST.get("pays")
         code_postal = request.POST.get("zipcode")
-        prix_total = request.POST.get("prix_total") or "0"
+        prix_total = request.POST.get("prix_total") or request.POST.get("prix") or "0"
         panier_json = request.POST.get("panier")
+        operateur = request.POST.get("operateur")
+        numero = request.POST.get("numero")
 
         try:
             panier = json.loads(panier_json)
         except Exception:
             panier = []
+            print("PANIER REÇU :", panier)
+            print("PANIER JSON REÇU :", panier_json)
+
+        # Correction : transformer le dict en liste de dicts si besoin
+        if isinstance(panier, dict):
+            panier = [
+                {
+                    "produit_id": int(pid),
+                    "quantite": values[0],
+                    "nom": values[1],
+                    "prix_unitaire": values[2]
+                }
+                for pid, values in panier.items()
+            ]
 
         commande = Commande.objects.create(
             utilisateur=request.user if request.user.is_authenticated else None,
@@ -162,9 +178,9 @@ def payer(request):
             paye=True,
         )
 
-        print("PANIER JSON REÇU :", request.POST.get("panier"))
+        lignes_crees = 0
+        print("PANIER REÇU (après conversion):", panier)
         for item in panier:
-            print("ITEM :", item)
             produit = Product.objects.get(id=item['produit_id'])
             LigneCommande.objects.create(
                 commande=commande,
@@ -172,6 +188,11 @@ def payer(request):
                 quantite=item['quantite'],
                 prix_unitaire=item['prix_unitaire'],
             )
+            lignes_crees += 1
+
+        # NE SUPPRIME PLUS LES COMMANDES NON PAYÉES ICI
+
+        print(f"Commande payée créée avec {lignes_crees} lignes.")
 
         return render(
             request,
@@ -180,6 +201,8 @@ def payer(request):
                 "nom": nom,
                 "prix_total": prix_total,
                 "payer": True,
+                "operateur": operateur,
+                "numero": numero,
             },
         )
 
@@ -242,6 +265,7 @@ def ajouter_produit(request):
         form = ProductForm()
     return render(request, 'shop/ajouter_produit.html', {'form': form})
 
+
 @login_required
 def mes_produits(request):
     produits = Product.objects.filter(user=request.user)
@@ -299,11 +323,20 @@ def tableau_de_bord(request):
 
 @login_required
 def commandes_reçues(request):
-    lignes = LigneCommande.objects.filter(produit__user=request.user).select_related('commande', 'produit', 'commande__utilisateur')
-    # Ajoute le montant total à chaque ligne
-    for ligne in lignes:
-        ligne.montant_total = ligne.quantite * ligne.prix_unitaire
-    return render(request, 'accounts/commandes_reçues.html', {'lignes': lignes})
+    statut = request.GET.get("statut")
+    # Correction ici : utiliser 'lignes' au lieu de 'lignescommande'
+    commandes = Commande.objects.filter(
+        lignes__produit__user=request.user
+    ).distinct().order_by('-date_commande')
+
+    print("DEBUG - Nombre de commandes trouvées :", commandes.count())  
+
+    if statut == "payee":
+        commandes = commandes.filter(paye=True)
+    elif statut == "nonpayee":
+        commandes = commandes.filter(paye=False)
+
+    return render(request, 'accounts/commandes_reçues.html', {'commandes': commandes})
 
 import csv
 from django.http import HttpResponse
@@ -348,66 +381,97 @@ def export_commandes_reçues(request):
     return response
 
 
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 from io import BytesIO
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from collections import defaultdict
 
 @login_required
 def export_commandes_reçues_pdf(request):
-    lignes = LigneCommande.objects.filter(produit__user=request.user).select_related('commande', 'produit', 'commande__utilisateur')
+    lignes = LigneCommande.objects.filter(
+        produit__user=request.user
+    ).select_related('commande', 'produit', 'commande__utilisateur').order_by('commande__id')
 
     buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
+    p = canvas.Canvas(buffer, pagesize=landscape(A4))  # <-- ICI: paysage
 
+    width, height = landscape(A4)  # largeur > hauteur
     y = height - 50
+
     p.setFont("Helvetica-Bold", 16)
     p.drawString(50, y, "Commandes reçues")
     y -= 30
 
-    p.setFont("Helvetica-Bold", 9)
-    headers = ["Produit", "Client", "Email", "Quantité", "Prix unitaire", "Montant", "Date", "Statut"]
-    x_list = [50, 120, 220, 320, 360, 420, 480, 540]
-    for i, header in enumerate(headers):
-        p.drawString(x_list[i], y, header)
-    y -= 18
-
-    p.setFont("Helvetica", 8)
+    commandes_dict = defaultdict(list)
     for ligne in lignes:
         if request.GET.get("statut") == "payee" and not ligne.commande.paye:
             continue
         if request.GET.get("statut") == "nonpayee" and ligne.commande.paye:
             continue
+        commandes_dict[ligne.commande].append(ligne)
 
-        client = (ligne.commande.utilisateur.username if ligne.commande.utilisateur else ligne.commande.nom) or ""
-        email = (ligne.commande.utilisateur.email if ligne.commande.utilisateur else ligne.commande.email) or ""
-        statut = "Payée" if ligne.commande.paye else "Non payée"
-        montant = float(ligne.quantite) * float(ligne.prix_unitaire)
-
-        # Tronquer les textes trop longs
-        def truncate(text, maxlen):
-            return (text[:maxlen-3] + '...') if len(text) > maxlen else text
-
-        data = [
-            truncate(str(ligne.produit.nom), 18),
-            truncate(str(client), 14),
-            truncate(str(email), 22),
-            str(ligne.quantite),
-            str(ligne.prix_unitaire),
-            str(montant),
-            ligne.commande.date_commande.strftime("%d/%m/%Y %H:%M"),
-            statut
-        ]
-        for i, value in enumerate(data):
-            p.drawString(x_list[i], y, value)
-        y -= 15
-        if y < 50:
+    p.setFont("Helvetica", 10)
+    for commande, lignes_commande in commandes_dict.items():
+        if y < 100:
             p.showPage()
             y = height - 50
-            p.setFont("Helvetica", 8)
+            p.setFont("Helvetica", 10)
+
+        client = commande.utilisateur.username if commande.utilisateur else commande.nom
+        email = commande.utilisateur.email if commande.utilisateur else commande.email
+        statut = "Payée" if commande.paye else "Non payée"
+        date = commande.date_commande.strftime("%d/%m/%Y %H:%M")
+        total_commande = sum(float(l.quantite)*float(l.prix_unitaire) for l in lignes_commande)
+
+        # Entête commande
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, y, f"Client: {client} | Email: {email} | Date: {date} | Statut: {statut}")
+        y -= 20
+        p.setFont("Helvetica", 10)
+        p.drawString(60, y, "Produit             Quantité    Prix unitaire    Montant")
+        y -= 15
+
+        for ligne in lignes_commande:
+            montant = float(ligne.quantite) * float(ligne.prix_unitaire)
+            texte_ligne = f"{ligne.produit.nom[:20]:20}  {ligne.quantite:8}    {ligne.prix_unitaire:13.2f}    {montant:8.2f}"
+            p.drawString(60, y, texte_ligne)
+            y -= 15
+            if y < 50:
+                p.showPage()
+                y = height - 50
+                p.setFont("Helvetica", 10)
+
+        p.setFont("Helvetica-Bold", 11)
+        p.drawString(60, y, f"Total commande : {total_commande:.2f} FCFA")
+        y -= 25
 
     p.save()
     buffer.seek(0)
     return HttpResponse(buffer, content_type='application/pdf')
+
+
+
+
+
+
+
+
+@login_required
+def supprimer_produit(request, produit_id):
+    produit = get_object_or_404(Product, id=produit_id, user=request.user)
+    if request.method == "POST":
+        produit.delete()
+        return redirect('dashboard')
+    return render(request, 'shop/confirmer_suppression.html', {'produit': produit})
+
+
+@login_required
+def supprimer_commande(request, commande_id):
+    commande = get_object_or_404(Commande, id=commande_id)
+    if request.method == "POST":
+        commande.delete()
+        messages.success(request, "Commande supprimée avec succès.")
+        return redirect('commandes_reçues')
+    return redirect('commandes_reçues')

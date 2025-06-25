@@ -1,7 +1,8 @@
 {% extends "shop/base.html" %}
 {% block content %}
 <h2 class="mb-4">Commandes reçues pour mes produits</h2>
-{% with total=lignes|length %}
+
+{% with total=commandes|length %}
   <div class="alert alert-info">
     Nombre total de commandes reçues : <strong>{{ total }}</strong>
   </div>
@@ -17,79 +18,123 @@
   </select>
 </form>
 
-<a href="{% url 'export_commandes_reçues' %}" class="btn btn-outline-success mb-3">
+<a href="{% url 'export_commandes_reçues' %}?statut={{ request.GET.statut }}" class="btn btn-outline-success mb-3">
   📥 Exporter en CSV
 </a>
 <a href="{% url 'export_commandes_reçues_pdf' %}?statut={{ request.GET.statut }}" class="btn btn-outline-danger mb-3 ml-2">
   📄 Exporter en PDF
 </a>
 
-<table class="table table-striped table-hover">
+<table class="table table-striped table-hover shadow-sm">
   <thead class="thead-dark">
     <tr>
-      <th>Produit</th>
+      <th>Actions</th>
       <th>Client</th>
       <th>Email</th>
-      <th>Quantité</th>
-      <th>Montant</th>
       <th>Date</th>
+      <th>Produits</th>
+      <th class="text-info">Total commande</th>
       <th>Statut</th>
       <th>Contact</th>
     </tr>
   </thead>
   <tbody>
-    {% for ligne in lignes %}
-      {% if request.GET.statut == "payee" and not ligne.commande.paye %}
-        {# On saute cette ligne #}
-      {% elif request.GET.statut == "nonpayee" and ligne.commande.paye %}
-        {# On saute cette ligne #}
-      {% else %}
+    {% for commande in commandes %}
     <tr>
       <td>
-        <a href="{% url 'detail' myid=ligne.produit.id %}">
-          {% if ligne.produit.image %}
-            <img src="{{ ligne.produit.image.url }}" alt="{{ ligne.produit.nom }}" width="40" class="mr-2 rounded" />
-          {% endif %}
-          {{ ligne.produit.nom }}
-        </a>
+        <!-- Bouton Supprimer -->
+        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modalSupprimer{{ commande.id }}">
+          Supprimer
+        </button>
+
+        <!-- Modale Bootstrap -->
+        <div class="modal fade" id="modalSupprimer{{ commande.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ commande.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalLabel{{ commande.id }}">Confirmation de suppression</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fermer">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer la commande de
+                <strong>
+                  {% if commande.utilisateur %}
+                    {{ commande.utilisateur.username }}
+                  {% else %}
+                    {{ commande.nom }}
+                  {% endif %}
+                </strong> ?
+                <br>
+                <span class="text-danger">Cette action est irréversible.</span>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <form method="post" action="{% url 'supprimer_commande' commande.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </td>
       <td>
-        {% if ligne.commande.utilisateur %}
-          <span class="badge badge-info">{{ ligne.commande.utilisateur.username }}</span>
+        {% if commande.utilisateur %}
+          <span class="badge badge-info">{{ commande.utilisateur.username }}</span>
         {% else %}
-          {{ ligne.commande.nom }}
+          <span class="badge badge-secondary">{{ commande.nom }}</span>
         {% endif %}
       </td>
       <td>
-        {% if ligne.commande.utilisateur %}
-          <a href="mailto:{{ ligne.commande.utilisateur.email }}">{{ ligne.commande.utilisateur.email }}</a>
+        {% if commande.utilisateur %}
+          <a href="mailto:{{ commande.utilisateur.email }}">{{ commande.utilisateur.email }}</a>
         {% else %}
-          <a href="mailto:{{ ligne.commande.email }}">{{ ligne.commande.email }}</a>
+          <a href="mailto:{{ commande.email }}">{{ commande.email }}</a>
         {% endif %}
       </td>
-      <td><span class="badge badge-primary">{{ ligne.quantite }}</span></td>
       <td>
-        <span class="badge badge-success">
-          {{ ligne.quantite }} × {{ ligne.prix_unitaire }} FCFA = {{ ligne.montant_total }} FCFA
+        <span class="badge badge-light">
+          {{ commande.date_commande|date:"d/m/Y H:i" }}
         </span>
       </td>
-      <td>{{ ligne.commande.date_commande|date:"d/m/Y H:i" }}</td>
       <td>
-        {% if ligne.commande.paye %}
-          <span class="badge badge-success">Payée</span>
+        <ul class="mb-0">
+          {% for ligne in commande.lignescommande_set.all %}
+          <li class="d-flex align-items-center mb-1">
+            {% if ligne.produit.image %}
+              <img src="{{ ligne.produit.image.url }}" alt="{{ ligne.produit.nom }}" width="40" class="mr-2 rounded shadow-sm" />
+            {% endif %}
+            <div>
+              <b>{{ ligne.produit.nom }}</b> :
+              {{ ligne.quantite }} × {{ ligne.prix_unitaire|floatformat:0 }} FCFA
+              = <b>{{ ligne.quantite|floatformat:0|add:""|add:ligne.prix_unitaire|floatformat:0 }}</b> FCFA
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </td>
+      <td>
+        <span class="badge badge-info px-3 py-2" style="font-size:1.1em;">
+          {{ commande.prix_total|floatformat:0 }} FCFA
+        </span>
+      </td>
+      <td>
+        {% if commande.paye %}
+          <span class="badge badge-success px-3 py-2">Payée</span>
         {% else %}
-          <span class="badge badge-warning">Non payée</span>
+          <span class="badge badge-warning px-3 py-2">Non payée</span>
         {% endif %}
       </td>
       <td>
-        {% if ligne.commande.utilisateur %}
-          <a href="mailto:{{ ligne.commande.utilisateur.email }}" class="btn btn-sm btn-outline-primary">Contacter</a>
+        {% if commande.utilisateur %}
+          <a href="mailto:{{ commande.utilisateur.email }}" class="btn btn-sm btn-outline-primary">Contacter</a>
         {% else %}
-          <a href="mailto:{{ ligne.commande.email }}" class="btn btn-sm btn-outline-primary">Contacter</a>
+          <a href="mailto:{{ commande.email }}" class="btn btn-sm btn-outline-primary">Contacter</a>
         {% endif %}
       </td>
     </tr>
-      {% endif %}
     {% empty %}
     <tr>
       <td colspan="8" class="text-center text-muted">Aucune commande reçue.</td>
