@@ -29,36 +29,27 @@ ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,
 
 # Configuration base de données
 if os.environ.get('RENDER'):
-    # En production sur Render, utilise PostgreSQL via DATABASE_URL ou variables d'environnement
-    # dj_database_url est pratique pour parser DATABASE_URL complète (ex: postgres://user:pass@host:port/dbname)
-    DATABASE_URL = os.getenv('DATABASE_URL')
-    if DATABASE_URL:
-        DATABASES = {
-            'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600),
+    # Production sur Render
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB'),        # ecommerce_db_aih6
+            'USER': os.getenv('POSTGRES_USER'),      # ecommerce_db_aih6_user
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),  # SS5ouBiMvaQXYdGngq5nXZe2y5WmTvtU
+            'HOST': os.getenv('POSTGRES_HOST'),      # dpg-d1bak68dl3ps73efsjt0-a
+            'PORT': os.getenv('POSTGRES_PORT', '5432'),
+            'OPTIONS': {'client_encoding': 'UTF8'},
         }
-    else:
-        # Fallback si DATABASE_URL non défini, utilise variables individuelles
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('POSTGRES_DB'),
-                'USER': os.getenv('POSTGRES_USER'),
-                'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-                'HOST': os.getenv('POSTGRES_HOST'),
-                'PORT': os.getenv('POSTGRES_PORT', '5432'),
-                'OPTIONS': {
-                    'client_encoding': 'UTF8',
-                },
-            }
-        }
+    }
 else:
-    # En local, utilise SQLite (aucune config supplémentaire nécessaire)
+    # Local : SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 
 # Applications installées
 INSTALLED_APPS = [
