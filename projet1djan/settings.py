@@ -29,14 +29,19 @@ ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,
 
 # Configuration base de données
 if os.environ.get('RENDER'):
-    # En production sur Render, on privilégie DATABASE_URL
+    # En production sur Render, on utilise DATABASE_URL avec SSL obligatoire
     DATABASE_URL = os.getenv('DATABASE_URL')
     if DATABASE_URL:
         DATABASES = {
-            'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+                ssl_require=True  # ← CRUCIAL : force SSL
+            )
         }
     else:
-        # Fallback si DATABASE_URL n'est pas défini, utiliser les variables séparées
+        # Fallback si DATABASE_URL n'est pas défini
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
@@ -45,17 +50,11 @@ if os.environ.get('RENDER'):
                 'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
                 'HOST': os.getenv('POSTGRES_HOST'),
                 'PORT': os.getenv('POSTGRES_PORT', '5432'),
-                'OPTIONS': {'client_encoding': 'UTF8'},
+                'OPTIONS': {
+                    'sslmode': 'require',  # ← Ajout SSL ici aussi
+                },
             }
         }
-else:
-    # Local : SQLite
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 
 
