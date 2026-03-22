@@ -28,9 +28,11 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')]
 
 # Configuration base de données
+# Configuration base de données
 import dj_database_url
 import os
 
+# Forcer SSL pour Render
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(
@@ -39,6 +41,8 @@ if os.environ.get('DATABASE_URL'):
             ssl_require=True
         )
     }
+    # Ajout manuel de SSL dans les options (double sécurité)
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 else:
     DATABASES = {
         'default': {
@@ -46,7 +50,6 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
 
 
 # Applications installées
