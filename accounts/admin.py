@@ -1,9 +1,7 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 from django.utils.html import format_html
 
-# ✅ Personnalisation de l'affichage admin
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'photo_tag', 'is_staff', 'is_active')
     readonly_fields = ('photo_tag',)

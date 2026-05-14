@@ -1,0 +1,143 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-3">
+                <i class="fas fa-list"></i> Toutes les catégories
+            </h2>
+            <p class="text-muted">{{ categories.paginator.count }} catégories au total</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.is_authenticated %}
+            <a href="{% url 'ajouter_categorie' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Ajouter une catégorie
+            </a>
+            {% else %}
+            <p class="text-muted">
+                <a href="{% url 'login' %}">Connectez-vous</a> pour ajouter une catégorie
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm hover-lift">
+                <div class="card-body text-center">
+                    <div class="category-icon mb-3">
+                        <i class="fas fa-folder-open fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">{{ category.nom }}</h5>
+                    <p class="text-muted small">
+                        {% with products_count=category.products.count %}
+                        {{ products_count }} produit{{ products_count|pluralize }}
+                        {% endwith %}
+                    </p>
+                    <a href="{% url 'index' %}?category={{ category.nom }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i> Voir les produits
+                    </a>
+                </div>
+                <div class="card-footer bg-light text-center border-top-0">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar-alt"></i> {{ category.date_ajouter|date:"d/m/Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <h4 class="mb-3">
+                    <i class="fas fa-inbox"></i> Aucune catégorie
+                </h4>
+                <p class="mb-0">Soyez le premier à ajouter une catégorie!</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'ajouter_categorie' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus"></i> Créer une catégorie
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if categories.has_other_pages %}
+    <nav aria-label="Pagination" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if categories.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">Première</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ categories.previous_page_number }}">Précédente</a>
+            </li>
+            {% endif %}
+
+            {% for num in categories.paginator.page_range %}
+            {% if categories.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if categories.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ categories.next_page_number }}">Suivante</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ categories.paginator.num_pages }}">Dernière</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+    .hover-lift {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(124, 58, 237, 0.3) !important;
+    }
+
+    .category-icon {
+        animation: slideInDown 0.5s ease;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card {
+        border: 2px solid transparent;
+        border-radius: 1rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .card:hover {
+        border-color: #7c3aed;
+    }
+</style>
+{% endblock %}

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
-    <title>Connexion | MonSite</title>
+    <title>Connexion | Shop-in-Line</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -41,7 +42,6 @@
             margin-bottom: 20px;
             border-radius: 6px;
             border: 1px solid #ccc;
-            transition: border 0.3s;
         }
 
         input:focus {
@@ -86,33 +86,32 @@
         }
     </style>
 </head>
+
 <body>
+    <div class="login-container">
+        <h2>Connexion</h2>
 
-<div class="login-container">
-    <h2>Connexion</h2>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="error-message">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
 
-    {% if form.errors %}
-        <div class="error-message">
-            Nom d'utilisateur ou mot de passe incorrect.
+        <form method="post">
+            {% csrf_token %}
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" name="username" id="username" required>
+
+            <label for="password">Mot de passe :</label>
+            <input type="password" name="password" id="password" required>
+
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <div class="register-link">
+            <p>Pas encore inscrit ? <a href="{% url 'register' %}">Créer un compte</a></p>
         </div>
-    {% endif %}
-
-    <form method="post">
-        {% csrf_token %}
-        
-        <label for="id_username">Nom d'utilisateur :</label>
-        {{ form.username }}
-
-        <label for="id_password">Mot de passe :</label>
-        {{ form.password }}
-
-        <button type="submit">Se connecter</button>
-    </form>
-
-    <div class="register-link">
-        <p>Pas encore inscrit ? <a href="{% url 'register' %}">Créer un compte</a></p>
     </div>
-</div>
-
 </body>
+
 </html>

@@ -1,0 +1,148 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-lg"
+            style="height: 600px; display: flex; flex-direction: column; border-radius: 1.5rem; border: none;">
+            <!-- Header -->
+            <div class="card-header border-bottom-2"
+                style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); border-radius: 1.5rem 1.5rem 0 0; padding: 1.5rem;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0 text-white fw-bold">
+                            <i class="fas fa-comments me-2"></i>Discussion avec {{ vendeur.username }}
+                        </h4>
+                        {% if produit %}
+                        <small class="text-white-50">
+                            <i class="fas fa-box me-1"></i>Produit: {{ produit.nom }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'index' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-times"></i> Fermer
+                    </a>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="card-body overflow-auto"
+                style="flex-grow: 1; background: linear-gradient(135deg, #f0f0ff 0%, #f5f0ff 100%);">
+                {% for message in messages %}
+                {% if message.sender == request.user %}
+                <!-- Message de l'utilisateur (à droite) -->
+                <div class="d-flex justify-content-end mb-3">
+                    <div class="bg-primary text-white p-3 rounded-3"
+                        style="max-width: 70%; word-wrap: break-word; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+                        <p class="mb-1">{{ message.contenu }}</p>
+                        <small class="d-block text-white-50">
+                            <i class="fas fa-clock me-1"></i>{{ message.date_envoi|date:"H:i" }}
+                        </small>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Message du vendeur (à gauche) -->
+                <div class="d-flex justify-content-start mb-3">
+                    <div class="bg-light p-3 rounded-3"
+                        style="max-width: 70%; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <strong class="text-primary">{{ message.sender.username }}</strong>
+                        <p class="mb-1 mt-2">{{ message.contenu }}</p>
+                        <small class="d-block text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ message.date_envoi|date:"H:i" }}
+                        </small>
+                    </div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="text-center text-muted mt-5">
+                    <p>
+                        <i class="fas fa-inbox fa-2x mb-3 d-block text-muted"></i>
+                        Aucun message pour le moment. Commencez la conversation!
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Message Input -->
+            <div class="card-footer border-top"
+                style="border-radius: 0 0 1.5rem 1.5rem; background: #fff; padding: 1rem;">
+                <form method="post" class="d-flex gap-2" id="messageForm">
+                    {% csrf_token %}
+                    <input type="text" name="contenu" class="form-control form-control-lg"
+                        placeholder="Votre message..." required id="messageInput"
+                        style="border-radius: 2rem; border: 2px solid #e5e7eb; font-size: 0.95rem;">
+                    <button type="submit" class="btn btn-primary" id="sendBtn"
+                        style="border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="alert alert-info mt-4 rounded-3">
+            <h6 class="alert-heading">
+                <i class="fas fa-info-circle"></i> Comment ça fonctionne?
+            </h6>
+            <ul class="mb-0 small">
+                <li>Tapez votre message et cliquez sur le bouton <strong>Envoyer</strong></li>
+                <li>Vos messages apparaissent <span class="badge bg-primary">à droite</span> en bleu</li>
+                <li>Les réponses du {{ vendeur.username }} apparaissent <span class="badge bg-light text-dark">à
+                        gauche</span> en gris</li>
+                <li>La discussion est automatiquement sauvegardée</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-bottom-2 {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    #messageForm input:focus {
+        border-color: #7c3aed !important;
+        box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+    }
+
+    #sendBtn {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    #sendBtn:hover {
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    #sendBtn:active {
+        transform: scale(0.95);
+    }
+</style>
+
+<script>
+    document.getElementById('messageForm').addEventListener('submit', function (e) {
+        // Désactiver le bouton pendant l'envoi
+        const sendBtn = document.getElementById('sendBtn');
+        const originalText = sendBtn.innerHTML;
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        // Le formulaire sera soumis normalement, la page se recharge et affiche le nouveau message
+        setTimeout(() => {
+            // Réinitialiser après envoi
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = originalText;
+            document.getElementById('messageInput').value = '';
+            document.getElementById('messageInput').focus();
+        }, 500);
+    });
+
+    // Auto-scroll vers le bas
+    const messagesContainer = document.querySelector('.card-body');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+</script>
+{% endblock %}

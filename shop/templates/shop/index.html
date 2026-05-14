@@ -1,266 +1,68 @@
-{% extends "shop/base.html" %}
-{% load static %}
-{% load humanize %}
+{% extends 'shop/base.html' %}
+{% load static humanize %}
 {% block content %}
-
-<!-- Font Awesome pour les étoiles -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-<style>
-  .zoom-hover {
-    transition: transform 0.3s ease;
-  }
-  .zoom-hover:hover {
-    transform: scale(1.08);
-  }
-  .img-produit-fixe {
-    width: 250px;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-  .stars {
-    color: gold;
-    font-size: 1.2em;
-  }
-  .truncated-review {
-    max-height: 4.2em;
-    overflow: hidden;
-    position: relative;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    padding: 6px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background-color: #fafafa;
-  }
-  .truncated-review:hover {
-    max-height: 500px;
-    background-color: #fff;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-  .truncated-review .review-text {
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2; 
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: all 0.3s ease;
-  }
-  .truncated-review:hover .review-text {
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-    white-space: normal;
-  }
-</style>
-
-<!-- Barre de recherche -->
-<div class="row">
+<div class="row mb-4">
   <div class="col-md-12">
-    <form class="card card-sm" method="GET">
-      <div class="card-body row no-gutters align-items-center">
-        <div class="col">
-          <input
-            type="search"
-            name="item_name"
-            value="{{ request.GET.item_name|default:'' }}"
-            class="form-control"
-            placeholder="Saisissez un nom de produit..."
-          />
-        </div>
-        <div class="col-auto">
-          <button type="submit" class="btn btn-success">Rechercher</button>
-        </div>
-      </div>
+    <form class="d-flex gap-2" method="GET">
+      <input type="search" name="item_name" class="form-control" placeholder="Rechercher..."
+        value="{{ request.GET.item_name }}">
+      <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Rechercher</button>
     </form>
   </div>
 </div>
-
-<!-- Affichage des produits -->
-<div class="row mt-4">
-  {% if product_object %}
-    {% for product in product_object %}
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex">
-        <div class="card shadow-sm w-100 h-100 d-flex flex-column">
-          <div class="position-relative">
-            {% if product.image %}
-              <img src="{{ product.image.url }}" alt="{{ product.nom }}" class="card-img-top zoom-hover img-produit-fixe mx-auto d-block" />
-            {% elif product.image_url %}
-              <img src="{{ product.image_url }}" alt="{{ product.nom }}" class="card-img-top zoom-hover img-produit-fixe mx-auto d-block" />
-            {% else %}
-              <img src="https://via.placeholder.com/300x200?text=Pas+d'image" class="card-img-top zoom-hover img-produit-fixe mx-auto d-block" />
-            {% endif %}
-            {% if product.category %}
-              <span class="badge badge-primary position-absolute" style="top:10px;left:10px;">{{ product.category.nom }}</span>
-            {% endif %}
-          </div>
-          <div class="card-body d-flex flex-column">
-            <h5 id="2id{{ product.id }}" class="card-title text-truncate" title="{{ product.nom }}">{{ product.nom }}</h5>
-            <!-- Affichage moyenne des notes -->
-            <div class="stars mb-2">
-              {% with moyenne=product.moyenne_note|default:0 %}
-                {% for i in "12345" %}
-                  {% if forloop.counter <= moyenne|floatformat:0 %}
-                    <i class="fa-solid fa-star text-warning"></i>
-                  {% else %}
-                    <i class="fa-regular fa-star text-muted"></i>
-                  {% endif %}
-                {% endfor %}
-                <span class="ml-1 text-muted small">({{ moyenne|floatformat:1 }})</span>
-              {% endwith %}
-            </div>
-            <div id="prix{{ product.id }}" class="font-weight-bold mb-2" style="color: rgb(204, 61, 9);">
-              {{ product.prix|intcomma }} FCFA
-            </div>
-            <!-- Avis avec affichage tronqué -->
-            {% for review in product.reviews.all|slice:":1" %}
-              <div class="truncated-review mb-2">
-                <strong>{{ review.user.username }}</strong> -
-                <span class="stars">
-                  {% for i in "12345" %}
-                    {% if forloop.counter <= review.note %}
-                      <i class="fa-solid fa-star text-warning"></i>
-                    {% else %}
-                      <i class="fa-regular fa-star text-muted"></i>
-                    {% endif %}
-                  {% endfor %}
-                </span>
-                <br />
-                <small>Posté le {{ review.date_added|date:"d/m/Y H:i" }}</small>
-                <p class="review-text mb-0">{{ review.commentaire }}</p>
-              </div>
-            {% empty %}
-              <p class="text-muted small">Aucun avis pour ce produit.</p>
-            {% endfor %}
-            <!-- Boutons responsives -->
-            <div class="mt-auto d-flex flex-wrap justify-content-between gap-2">
-              <button class="btn varAjout btn-success btn-sm mb-1 flex-fill mr-1" id="{{ product.id }}">
-                <i class="fa fa-cart-plus"></i> Ajouter
-              </button>
-              <a href="{% url 'detail' myid=product.id %}" class="btn btn-warning btn-sm mb-1 flex-fill mr-1">Voir</a>
-              <a href="mailto:{{ product.user.email }}" class="btn btn-info btn-sm mb-1 flex-fill">Discuter</a>
-            </div>
-          </div>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+  {% for p in product_object %}
+  <div class="col">
+    <div class="card h-100">
+      <img src="{{ p.get_image }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+      <div class="card-body">
+        <h5 class="card-title">{{ p.nom }}</h5>
+        <p class="card-text small text-muted">{{ p.description|truncatechars:60 }}</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <strong class="text-primary">{{ p.prix|intcomma }} FCFA</strong>
+          <span class="badge bg-secondary">{{ p.category.nom|default:"-" }}</span>
         </div>
+        {% if p.stock > 0 %}
+        <button class="btn btn-sm btn-success w-100 mt-2 ajout-panier" data-id="{{ p.id }}" data-nom="{{ p.nom }}"><i
+            class="fas fa-cart-plus"></i> Ajouter</button>
+        {% else %}
+        <button class="btn btn-sm btn-secondary w-100 mt-2" disabled>Rupture</button>
+        {% endif %}
+        <a href="{% url 'detail' p.id %}" class="btn btn-outline-info btn-sm w-100 mt-2">Détail</a>
       </div>
-    {% endfor %}
-  {% else %}
-    <div class="col-12">
-      <p>Aucun produit trouvé.</p>
-    </div>
-  {% endif %}
-</div>
-
-<!-- Pagination -->
-{% if product_object.has_other_pages %}
-  <div class="row mt-3">
-    <div class="col-md-3 offset-md-4">
-      <ul class="pagination">
-        {% if product_object.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ product_object.previous_page_number }}&item_name={{ request.GET.item_name|default_if_none:'' }}">Précédent</a>
-          </li>
-        {% endif %}
-        {% for i in product_object.paginator.page_range %}
-          {% if product_object.number == i %}
-            <li class="page-item active">
-              <a class="page-link" href="#">{{ i }}</a>
-            </li>
-          {% else %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ i }}&item_name={{ request.GET.item_name|default_if_none:'' }}">{{ i }}</a>
-            </li>
-          {% endif %}
-        {% endfor %}
-        {% if product_object.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ product_object.next_page_number }}&item_name={{ request.GET.item_name|default_if_none:'' }}">Suivant</a>
-          </li>
-        {% endif %}
-      </ul>
     </div>
   </div>
+  {% empty %}<div class="col-12 text-center">Aucun produit.</div>{% endfor %}
+</div>
+{% if product_object.has_other_pages %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if product_object.has_previous %}<li class="page-item"><a class="page-link"
+        href="?page={{ product_object.previous_page_number }}&item_name={{ request.GET.item_name }}&category={{ request.GET.category }}">Précédent</a>
+    </li>{% endif %}
+    {% for i in product_object.paginator.page_range %}<li
+      class="page-item {% if product_object.number == i %}active{% endif %}"><a class="page-link"
+        href="?page={{ i }}&item_name={{ request.GET.item_name }}&category={{ request.GET.category }}">{{ i }}</a></li>
+    {% endfor %}
+    {% if product_object.has_next %}<li class="page-item"><a class="page-link"
+        href="?page={{ product_object.next_page_number }}&item_name={{ request.GET.item_name }}&category={{ request.GET.category }}">Suivant</a>
+    </li>{% endif %}
+  </ul>
+</nav>
 {% endif %}
 {% endblock %}
-
 {% block js %}
-<script type="text/javascript">
-  let panier = localStorage.getItem("panier")
-    ? JSON.parse(localStorage.getItem("panier"))
-    : {};
-  updateBadge();
-  ListPanier(panier);
-
-  function compterArticles(panier) {
-    return Object.values(panier).reduce((a, b) => a + b[0], 0);
-  }
-
-  function updateBadge() {
-    $("#compteur-panier").text(compterArticles(panier));
-  }
-
-  $(document).on("click", ".varAjout", function () {
-    const item_id = this.id;
-    if (!item_id || item_id === "undefined") return;
-
-    const prixText = document.getElementById("prix" + item_id).textContent;
-    const prix = Number(
-      prixText
-        .replace(/[^0-9,]/g, "")
-        .replace(",", ".")
-    );
-    const nom = document.getElementById("2id" + item_id).textContent;
-
-    if (panier[item_id]) {
-      panier[item_id][0] += 1;
-      panier[item_id][2] += prix;
-    } else {
-      panier[item_id] = [1, nom, prix];
-    }
-
-    localStorage.setItem("panier", JSON.stringify(panier));
-    updateBadge();
-    ListPanier(panier);
-  });
-
-  function ListPanier(panier) {
-    let panierList = "<h5>Liste des produits ajoutés</h5>";
-    for (const id in panier) {
-      const quantite = panier[id][0];
-      const nom = panier[id][1];
-      panierList += `<p>${nom} : ${quantite}</p>`;
-    }
-    panierList += '<a href="/paiement" class="btn btn-danger">Payer</a>';
-
-    const boutonPanier = document.getElementById("panier");
-    if (boutonPanier) {
-      boutonPanier.setAttribute("data-content", panierList);
-      $("[data-toggle='popover']").popover({ html: true });
-    }
-  }
-
-  $(function () {
-    $('[data-toggle="popover"]').popover({
-      html: true,
-      trigger: "focus",
-      placement: "bottom",
+<script>
+  document.querySelectorAll('.ajout-panier').forEach(btn => {
+    btn.addEventListener('click', function () {
+      let id = this.dataset.id;
+      let nom = this.dataset.nom;
+      fetch('/ajouter-panier-api/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'product_id=' + id
+      }).then(r => r.json()).then(data => { if (data.success) { showToast(nom + " ajouté"); updateBadge(); } });
     });
-  });
-
-  $(document).on("click", function (e) {
-    const target = $(e.target);
-    const boutonPanier = $("#panier");
-
-    if (
-      !target.is(boutonPanier) &&
-      !target.closest(".popover").length &&
-      !target.closest("#panier").length
-    ) {
-      boutonPanier.popover("hide");
-    }
   });
 </script>
 {% endblock %}

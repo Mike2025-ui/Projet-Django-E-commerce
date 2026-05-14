@@ -1,0 +1,133 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h3>Récapitulatif du panier</h3>
+        <div id="panier-vide" class="alert alert-info" style="display:none;">Votre panier est vide</div>
+        <table id="panier-table" class="table table-striped" style="display:none;">
+            <thead class="table-dark">
+                <tr>
+                    <th>Produit</th>
+                    <th style="width:80px;">Quantité</th>
+                    <th style="width:120px;">Prix unitaire</th>
+                    <th style="width:120px;">Sous-total</th>
+                    <th style="width:80px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="item_list"></tbody>
+            <tfoot class="table-dark">
+                <tr>
+                    <th colspan="3" class="text-end">Total :</th>
+                    <th id="total-prix">0 FCFA</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <form method="post" id="form-commande" class="border p-4 bg-light rounded">
+            {% csrf_token %}
+            <input type="hidden" name="panier" id="panier-hidden">
+            <h4 class="mb-4">Informations de livraison</h4>
+            <div class="mb-3"><input type="text" name="nom" class="form-control" placeholder="Nom complet" required>
+            </div>
+            <div class="mb-3"><input type="email" name="email" class="form-control" placeholder="Email" required></div>
+            <div class="mb-3"><input type="text" name="address" class="form-control" placeholder="Adresse" required>
+            </div>
+            <div class="row">
+                <div class="col"><input type="text" name="ville" class="form-control" placeholder="Ville" required>
+                </div>
+                <div class="col"><select name="pays" class="form-control">
+                        <option>Côte d'Ivoire</option>
+                        <option>Mali</option>
+                    </select></div>
+                <div class="col"><input type="text" name="zipcode" class="form-control" placeholder="Code postal"></div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4 w-100">Confirmer la commande</button>
+        </form>
+    </div>
+</div>
+<script>
+    let panier = {};
+
+    // Charger le panier depuis l'API
+    async function chargerPanier() {
+        try {
+            const response = await fetch('/get-panier-info/');
+            const data = await response.json();
+            panier = data.panier || {};
+            console.log('Panier chargé:', panier);
+            afficherPanier();
+        } catch (e) {
+            console.error('Erreur chargement panier:', e);
+            panier = {};
+            afficherPanier();
+        }
+    }
+    function afficherPanier() {
+        console.log('Affichage panier, clés:', Object.keys(panier), 'panier:', panier); // Debug
+        let html = '';
+        let total = 0;
+        let qte_total = 0;
+
+        if (Object.keys(panier).length === 0) {
+            document.getElementById('panier-vide').style.display = 'block';
+            document.getElementById('panier-table').style.display = 'none';
+            return;
+        }
+
+        for (let [id, item] of Object.entries(panier)) {
+            console.log('Item:', id, item); // Debug
+            let quantite = parseInt(item.quantite) || 1;
+            let prix = parseFloat(item.prix_unitaire) || 0;
+            let sousTotal = quantite * prix;
+            total += sousTotal;
+            qte_total += quantite;
+            html += `
+                <tr>
+                    <td>${item.nom || 'Produit'}</td>
+                    <td><input type="number" min="1" value="${quantite}" class="form-control form-control-sm" onchange="changerQuantite(${id}, this.value)"></td>
+                    <td>${prix.toFixed(0)} FCFA</td>
+                    <td>${sousTotal.toFixed(0)} FCFA</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="supprimerProduit(${id})">✕</button></td>
+                </tr>
+            `;
+        }
+
+        document.getElementById('item_list').innerHTML = html;
+        document.getElementById('total-prix').textContent = total.toFixed(0) + ' FCFA';
+        document.getElementById('panier-vide').style.display = 'none';
+        document.getElementById('panier-table').style.display = 'table';
+
+        // Mettre à jour les champs cachés
+        document.getElementById('panier-hidden').value = JSON.stringify(panier);
+    }
+
+    function supprimerProduit(produitId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+            delete panier[produitId];
+            afficherPanier();
+        }
+    }
+
+    function changerQuantite(produitId, newQte) {
+        let qte = parseInt(newQte);
+        if (qte < 1) qte = 1;
+        panier[produitId]['quantite'] = qte;
+        afficherPanier();
+    }
+
+    chargerPanier();
+
+    document.getElementById('form-commande').addEventListener('submit', function (e) {
+        if (Object.keys(panier).length === 0) {
+            e.preventDefault();
+            alert('Votre panier est vide !');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

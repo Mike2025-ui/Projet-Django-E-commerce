@@ -1,12 +1,12 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'shop/base.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h3>Ajouter un produit</h3>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">Ajouter</button>
-    </form>
+<div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-header">Ajouter un produit</div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-success">Ajouter</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
