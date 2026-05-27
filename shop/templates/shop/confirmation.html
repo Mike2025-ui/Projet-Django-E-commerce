@@ -1,31 +1,41 @@
 {% extends 'shop/base.html' %}
 {% block content %}
-<div class="row justify-content-center">
+  <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card border-success mb-3">
-            <div class="card-header bg-success text-white">
-                <h4 class="mb-0"><i class="fas fa-check-circle"></i> Commande confirmée !</h4>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-success" role="alert">
-                    <h5>Merci pour votre commande !</h5>
-                    <p>Un email de confirmation a été envoyé à votre adresse.</p>
-                </div>
-
-                {% if commande_id %}
-                <div class="order-info p-3 bg-light rounded">
-                    <p><strong>Numéro de commande :</strong> #{{ commande_id }}</p>
-                    <p><strong>Status :</strong> <span class="badge bg-info">En attente de traitement</span></p>
-                </div>
-                {% endif %}
-
-                <div class="mt-4 text-center">
-                    <a href="{% url 'index' %}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-home"></i> Retour à l'accueil
-                    </a>
-                </div>
-            </div>
+      <div class="card border-success mb-3">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0"><i class="fas fa-check-circle"></i> Commande confirmée !</h4>
         </div>
+        <div class="card-body">
+          <div class="alert alert-success" role="alert">
+            <h5>Merci pour votre commande !</h5>
+            <p>Un email de confirmation a été envoyé à votre adresse.<br><br>
+              ⚠️ ATTENTION ⚠️<br>
+               Pour votre sécurité, toutes les commandes sont réglées uniquement à la livraison. Shop-in-Line décline toute responsabilité en cas d'arnaque, de fraude ou de paiement effectué en dehors de nos procédures officielles.
+            </p>
+          </div>
+
+          {% if commande_id %}
+            <div class="order-info p-3 bg-light rounded">
+              <p>
+                <strong>Numéro de commande :</strong> #{{ commande_id }}
+              </p>
+              {% if telephone %}
+                <p>
+                  <strong>Téléphone :</strong> {{ telephone }}
+                </p>
+              {% endif %}
+              <p>
+                <strong>Status :</strong> <span class="badge bg-info">En attente de traitement</span>
+              </p>
+            </div>
+          {% endif %}
+
+          <div class="mt-4 text-center">
+            <a href="{% url 'index' %}" class="btn btn-primary btn-lg"><i class="fas fa-home"></i> Retour à l'accueil</a>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 {% endblock %}

@@ -8,7 +8,7 @@
           <h5 class="mb-0">Confirmation de suppression</h5>
         </div>
         <div class="card-body">
-          <h4 class="mb-3">Êtes-vous sûr de vouloir supprimer « {{ produit.nom }} » ?</h4>
+          <h4 class="mb-3">Êtes-vous sûr de vouloir supprimer « {{ produit.nom|default:produit }} » ?</h4>
           <p class="text-muted">Cette action est irréversible.</p>
           <div class="d-flex gap-2">
             <form method="post" style="display: inline;">

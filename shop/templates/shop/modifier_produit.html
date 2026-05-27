@@ -34,12 +34,16 @@
                                     {{ form.category }}
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Image</label>
-                                    {{ form.image }}
+                                    <label class="form-label fw-bold d-block mb-2">📷 Image (Upload)</label>
+                                    <div class="p-3 bg-light rounded border-2 border-dashed" style="border-color:#a855f7 !important;">
+                                        {{ form.image }}
+                                        <small class="text-muted d-block mt-2">Format: JPG, PNG (Max 5MB)</small>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Image URL</label>
+                                    <label class="form-label fw-bold d-block mb-2">🔗 Ou URL Image</label>
                                     {{ form.image_url }}
+                                    <small class="text-muted d-block mt-1">Entrez l'URL complète de l'image</small>
                                 </div>
                             </div>
                         </div>
@@ -61,16 +65,54 @@
                 </div>
             </div>
 
-            {% if produit.image %}
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Image actuelle</h5>
+            {% if produit.image or produit.image_url %}
+            <div class="card mb-3" style="background:#f0f9ff; border:2px dashed #7c3aed;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">✓ Image actuelle</h5>
                 </div>
-                <div class="card-body text-center">
-                    <img src="{{ produit.image.url }}" class="img-fluid" style="max-height: 200px;">
+                <div class="card-body text-center" style="padding:2rem;">
+                    {% if produit.image %}
+                        <img src="{{ produit.image.url }}" class="img-fluid" style="max-height: 300px; max-width:100%; border-radius:0.5rem; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                    {% elif produit.image_url %}
+                        <img src="{{ produit.image_url }}" class="img-fluid" style="max-height: 300px; max-width:100%; border-radius:0.5rem; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
+        <style>
+            .form-control,
+            select {
+                border-radius: 0.5rem;
+                border: 2px solid #e5e7eb;
+                transition: all 0.3s ease;
+            }
+            .form-control:focus,
+            select:focus {
+                border-color: #7c3aed;
+                box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+            }
+            input[type="file"] {
+                background: #f9f9fe;
+                border-radius: 0.5rem;
+                border: 2px dashed #a855f7;
+                padding: 0.5rem;
+                width: 100%;
+                color: #7c3aed;
+                font-weight: 500;
+            }
+            input[type="file"]:focus {
+                border-color: #7c3aed;
+                background: #fff;
+            }
+            @media (max-width: 600px) {
+                .card-body, .mb-3, .form-label {
+                    font-size: 1rem;
+                }
+                .card {
+                    padding: 0.5rem;
+                }
+            }
+        </style>
         </div>
     </div>
 </div>

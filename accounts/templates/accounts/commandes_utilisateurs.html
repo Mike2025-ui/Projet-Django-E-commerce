@@ -1,15 +1,19 @@
-{% extends "shop/base.html" %}
+{% extends 'shop/base.html' %}
 {% block content %}
-<h1>Commandes de tous les utilisateurs</h1>
-<ul>
-  {% for commande in commandes %}
-    <li>
-      <strong>{{ commande.utilisateur.username }}</strong> :
-      {{ commande.nom }} - {{ commande.date_commande }} -
-      {% if commande.paye %}Payée{% else %}Non payée{% endif %}
-    </li>
-  {% empty %}
-    <li>Aucune commande trouvée.</li>
-  {% endfor %}
-</ul>
+  <h1>Commandes de tous les utilisateurs</h1>
+  <ul>
+    {% for commande in commandes %}
+      <li>
+        <strong>{{ commande.utilisateur.username }}</strong> :
+        {{ commande.nom }} - {{ commande.date_commande }} -
+        <span class="badge bg-info">{{ commande.telephone|default:'-' }}</span> -{% if commande.paye %}
+          Payée
+        {% else %}
+          Non payée
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Aucune commande trouvée.</li>
+    {% endfor %}
+  </ul>
 {% endblock %}

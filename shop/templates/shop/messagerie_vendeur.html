@@ -1,0 +1,26 @@
+{% extends 'shop/base.html' %}
+{% block content %}
+  <div class="container py-4">
+    <h3>Messagerie vendeur</h3>
+    {% if discussions %}
+      <div class="list-group">
+        {% for d in discussions %}
+          <a href="{% url 'discussion' d.acheteur.id %}" class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <img src="{{ d.acheteur.photo_url }}" class="rounded-circle" width="36" height="36" alt="avatar client" />
+                <strong>{{ d.acheteur.username }}</strong>
+                {% if d.produit %}
+                  <span class="text-muted">| {{ d.produit.nom }}</span>
+                {% endif %}
+              </div>
+              <small class="text-muted">{{ d.date_update|date:'d/m/Y H:i' }}</small>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info mt-4">Aucune discussion pour l’instant.</div>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -2,187 +2,182 @@
 {% load static %}
 
 {% block content %}
-<div class="container py-4">
+  <div class="container py-4">
     <!-- Affichage du produit -->
     <div class="row mb-4">
-        <div class="col-md-6 text-center">
-            <img src="{{ product.get_image }}" class="img-fluid rounded shadow" style="max-height: 400px;">
+      <div class="col-md-6 text-center">
+        <img src="{{ product.get_image }}" class="img-fluid rounded shadow" style="max-height: 400px;" />
+      </div>
+
+      <div class="col-md-6">
+        <h2 class="fw-bold">{{ product.nom }}</h2>
+        <div class="h3 text-danger mb-3">{{ product.prix|floatformat:0 }} FCFA</div>
+        <p class="text-muted">{{ product.description }}</p>
+
+        <!-- Stock Display avec badges colorés -->
+        <div class="mb-3">
+          {% if product.stock > 10 %}
+            <span class="badge bg-success fs-6">Stock disponible: {{ product.stock }} unité(s)</span>
+          {% elif product.stock > 0 %}
+            <span class="badge bg-warning fs-6">Stock limité: {{ product.stock }} unité(s)</span>
+          {% else %}
+            <span class="badge bg-danger fs-6">Rupture de stock</span>
+          {% endif %}
         </div>
 
-        <div class="col-md-6">
-            <h2 class="fw-bold">{{ product.nom }}</h2>
-            <div class="h3 text-primary mb-3">{{ product.prix|floatformat:0 }} FCFA</div>
-            <p class="text-muted">{{ product.description }}</p>
+        <!-- Bouton Ajouter au panier -->
+        {% if product.stock > 0 %}
+          <button id="ajoutPanierDetail" class="btn btn-success btn-lg w-100 my-2"><i class="fas fa-cart-plus"></i> Ajouter au panier</button>
+        {% else %}
+          <button class="btn btn-secondary btn-lg w-100 my-2" disabled>Rupture de stock</button>
+        {% endif %}
 
-            <!-- Stock Display avec badges colorés -->
-            <div class="mb-3">
-                {% if product.stock > 10 %}
-                <span class="badge bg-success fs-6">Stock disponible: {{ product.stock }} unité(s)</span>
-                {% elif product.stock > 0 %}
-                <span class="badge bg-warning fs-6">Stock limité: {{ product.stock }} unité(s)</span>
-                {% else %}
-                <span class="badge bg-danger fs-6">Rupture de stock</span>
-                {% endif %}
-            </div>
+        <a href="{% url 'index' %}" class="btn btn-outline-secondary w-100">Retour</a>
 
-            <!-- Bouton Ajouter au panier -->
-            {% if product.stock > 0 %}
-            <button id="ajoutPanierDetail" class="btn btn-success btn-lg w-100 my-2">
-                <i class="fas fa-cart-plus"></i> Ajouter au panier
-            </button>
-            {% else %}
-            <button class="btn btn-secondary btn-lg w-100 my-2" disabled>Rupture de stock</button>
-            {% endif %}
-
-            <a href="{% url 'index' %}" class="btn btn-outline-secondary w-100">Retour</a>
-
-            <!-- Contact vendeur -->
-            <a href="{% url 'discussion_produit' product.user.id product.id %}" class="btn btn-info w-100 mt-2">
-                <i class="fas fa-comment"></i> Contacter le vendeur
-            </a>
-        </div>
+        <!-- Contact vendeur -->
+        <a href="{% url 'discussion_produit' product.user.id product.id %}" class="btn btn-info w-100 mt-2"><i class="fas fa-comment"></i> Contacter le vendeur</a>
+      </div>
     </div>
 
-    <hr>
+    <hr />
 
     <!-- Section Avis clients -->
     <div class="row mt-5">
-        <div class="col-12">
-            <h4 class="mb-4">Avis clients</h4>
-        </div>
+      <div class="col-12">
+        <h4 class="mb-4">Avis clients</h4>
+      </div>
 
-        <!-- Boucle pour les avis avec for-empty-endfor correctement structurée -->
-        {% for rev in reviews %}
+      <!-- Boucle pour les avis avec for-empty-endfor correctement structurée -->
+      {% for rev in reviews %}
         <div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex gap-2 align-items-center mb-2">
-                        <img src="{% if rev.user.photo %}{{ rev.user.photo.url }}{% else %}{% static 'default-avatar.png' %}{% endif %}"
-                            width="40" height="40" class="rounded-circle">
-                        <div>
-                            <strong>{{ rev.user.username }}</strong>
-                            <div class="text-warning small">
-                                {% for i in "12345" %}
-                                {% if forloop.counter <= rev.note %}★{% else %}☆{% endif %} {% endfor %} </div>
-                            </div>
-                        </div>
-                        <p class="mt-2">{{ rev.commentaire }}</p>
-                        <small class="text-muted">{{ rev.date_added|date:"d/m/Y H:i" }}</small>
-                    </div>
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex gap-2 align-items-center mb-2">
+                <img src="{{ rev.user.photo_url }}" width="40" height="40" class="rounded-circle" />
+                <div>
+                  <strong>{{ rev.user.username }}</strong>
+                  <div class="text-warning small">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= rev.note %}
+                        ★
+                      {% else %}
+                        ☆
+                      {% endif %}
+                    {% endfor %}
+                  </div>
                 </div>
+              </div>
+              <p class="mt-2">{{ rev.commentaire }}</p>
+              <small class="text-muted">{{ rev.date_added|date:'d/m/Y H:i' }}</small>
             </div>
-
-            {% empty %}
-            <div class="col-12">
-                <div class="alert alert-info text-center">
-                    <p class="mb-0">Aucun avis pour le moment.</p>
-                </div>
-            </div>
-            {% endfor %}
+          </div>
         </div>
-
-        <hr>
-
-        <!-- Section Laisser un avis -->
-        {% if user.is_authenticated %}
-        <div class="row mt-4">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Laisser un avis</h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <!-- Sélection de la note -->
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Note</label>
-                                <div class="rating" id="ratingContainer">
-                                    {% for i in "54321" %}
-                                    <input type="radio" name="note" value="{{ i }}" id="star{{ i }}" required>
-                                    <label for="star{{ i }}">★</label>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <!-- Commentaire -->
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Commentaire</label>
-                                <textarea name="commentaire" class="form-control" rows="4"
-                                    placeholder="Partagez votre expérience avec ce produit..." required></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane"></i> Envoyer
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info text-center">
+            <p class="mb-0">Aucun avis pour le moment.</p>
+          </div>
         </div>
-        {% else %}
-        <div class="row mt-4">
-            <div class="col-md-8">
-                <div class="alert alert-warning" role="alert">
-                    <h5 class="alert-heading">
-                        <i class="fas fa-lock"></i> Connectez-vous pour laisser un avis
-                    </h5>
-                    <p class="mb-0">
-                        Vous devez être connecté pour partager votre expérience avec ce produit.
-                        <a href="{% url 'login' %}" class="alert-link">Se connecter</a> ou
-                        <a href="{% url 'register' %}" class="alert-link">créer un compte</a>.
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+      {% endfor %}
     </div>
-    {% endblock %}
 
-    {% block js %}
-    <style>
-        .rating {
-            direction: rtl;
-            font-size: 2rem;
-            display: flex;
-            gap: 0.5rem;
-        }
+    <hr />
 
-        .rating input {
-            display: none;
-        }
+    <!-- Section Laisser un avis -->
+    {% if user.is_authenticated %}
+      <div class="row mt-4">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Laisser un avis</h5>
+            </div>
+            <div class="card-body">
+              <form method="post">
+                {% csrf_token %}
 
-        .rating label {
-            color: #ddd;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
+                <!-- Sélection de la note -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Note</label>
+                  <div class="rating" id="ratingContainer">
+                    {% for i in "12345" %}
+                      <input type="radio" name="note" value="{{ i }}" id="star{{ i }}" required />
+                      <label for="star{{ i }}">★</label>
+                    {% endfor %}
+                  </div>
+                </div>
 
-        .rating input:checked~label,
-        .rating label:hover,
-        .rating label:hover~label {
-            color: #ffc107;
-        }
-    </style>
+                <!-- Commentaire -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Commentaire</label>
+                  <textarea name="commentaire" class="form-control" rows="4" placeholder="Partagez votre expérience avec ce produit..." required></textarea>
+                </div>
 
-    <script>
-        document.getElementById('ajoutPanierDetail')?.addEventListener('click', () => {
-            fetch('/ajouter-panier-api/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'product_id={{ product.id }}'
-            })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Produit ajouté');
-                        updateBadge();
-                    }
-                });
-        });
-    </script>
-    {% endblock %}
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Envoyer</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="row mt-4">
+        <div class="col-md-8">
+          <div class="alert alert-warning" role="alert">
+            <h5 class="alert-heading"><i class="fas fa-lock"></i> Connectez-vous pour laisser un avis</h5>
+            <p class="mb-0">
+              Vous devez être connecté pour partager votre expérience avec ce produit.
+              <a href="{% url 'login' %}" class="alert-link">Se connecter</a> ou
+              <a href="{% url 'register' %}" class="alert-link">créer un compte</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block js %}
+  <style>
+    .rating {
+      direction: rtl;
+      font-size: 2rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .rating input {
+      display: none;
+    }
+    
+    .rating label {
+      color: #ddd;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    
+    .rating input:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+      color: #ffc107;
+    }
+  </style>
+
+  <script>
+    document.getElementById('ajoutPanierDetail')?.addEventListener('click', () => {
+      fetch('/ajouter-panier-api/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'product_id={{ product.id }}'
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success) {
+            showToast('Produit ajouté')
+            updateBadge()
+          }
+        })
+    })
+  </script>
+{% endblock %}

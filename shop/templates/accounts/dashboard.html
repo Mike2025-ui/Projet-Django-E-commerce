@@ -1,53 +1,53 @@
 {% extends 'shop/base.html' %}
 {% load static %}
 {% block content %}
-<div class="row">
-  <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        {% if user.photo %}
-        <img src="{{ user.photo.url }}" class="rounded-circle mb-3" width="120" height="120">
-        {% else %}
-        <img src="{% static 'default-avatar.png' %}" class="rounded-circle mb-3" width="120">
-        {% endif %}
-        <h4>{{ user.username }}</h4>
-        <p>{{ user.email }}</p>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <img src="{{ user.photo_url }}" class="rounded-circle mb-3" width="120" height="120" />
+          <h4>{{ user.username }}</h4>
+          <p>{{ user.email }}</p>
 
-        <form method="post" enctype="multipart/form-data" action="{% url 'modifier_photo_profil' %}">
-          {% csrf_token %}
-          <input type="file" name="photo" class="form-control mb-2" accept="image/*">
-          <button class="btn btn-sm btn-outline-primary">Changer photo</button>
-        </form>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header">Ajouter un produit</div>
-      <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button class="btn btn-primary">Ajouter</button>
-        </form>
-      </div>
-    </div>
-    <hr>
-    <h5>Mes produits</h5>
-    <div class="row row-cols-1 row-cols-sm-2 g-3">
-      {% for p in mes_produits %}
-      <div class="col">
-        <div class="card">
-          <img src="{{ p.get_image }}" class="card-img-top" style="height: 120px; object-fit: cover;">
-          <div class="card-body">
-            <h6>{{ p.nom }} - {{ p.prix }} FCFA</h6>
-            <a href="{% url 'modifier_produit' p.pk %}" class="btn btn-sm btn-warning">Modifier</a>
-            <a href="{% url 'supprimer_produit' p.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
-          </div>
+          <a href="{% url 'messagerie_vendeur' %}" class="btn btn-info btn-block mb-2">Messagerie vendeur</a>
+
+          <form method="post" enctype="multipart/form-data" action="{% url 'modifier_photo_profil' %}">
+            {% csrf_token %}
+            <input type="file" name="photo" class="form-control mb-2" accept="image/*" />
+            <button class="btn btn-sm btn-outline-primary">Changer photo</button>
+          </form>
         </div>
       </div>
-      {% empty %}<p>Aucun produit.</p>{% endfor %}
+    </div>
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">Ajouter un produit</div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-primary">Ajouter</button>
+          </form>
+        </div>
+      </div>
+      <hr />
+      <h5>Mes produits</h5>
+      <div class="row row-cols-1 row-cols-sm-2 g-3">
+        {% for p in mes_produits %}
+          <div class="col">
+            <div class="card">
+              <img src="{{ p.get_image }}" class="card-img-top" style="height: 120px; object-fit: cover;" />
+              <div class="card-body">
+                <h6>{{ p.nom }} - {{ p.prix }} FCFA</h6>
+                <a href="{% url 'modifier_produit' p.pk %}" class="btn btn-sm btn-warning">Modifier</a>
+                <a href="{% url 'supprimer_produit' p.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <p>Aucun produit.</p>
+        {% endfor %}
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}

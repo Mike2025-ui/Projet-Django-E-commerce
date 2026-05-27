@@ -3,16 +3,28 @@
 {% block content %}
 <div class="row">
     <div class="col-md-12">
+        {% if erreur %}
+        <div class="alert alert-danger alert-dismissible fade show">
+            <strong>Erreur :</strong> {{ erreur }}
+            {% if details_erreur %}
+            <hr>
+            <pre style="background:#f5f5f5; padding:10px; border-radius:5px; overflow-x:auto;">{{ details_erreur }}</pre>
+            {% endif %}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
         <h3>Récapitulatif du panier</h3>
         <div id="panier-vide" class="alert alert-info" style="display:none;">Votre panier est vide</div>
-        <table id="panier-table" class="table table-striped" style="display:none;">
+        <div id="panier-message" class="alert alert-success" style="display:none;"></div>
+        <table id="panier-table" class="table table-striped table-responsive" style="display:none;">
             <thead class="table-dark">
                 <tr>
-                    <th>Produit</th>
-                    <th style="width:80px;">Quantité</th>
-                    <th style="width:120px;">Prix unitaire</th>
-                    <th style="width:120px;">Sous-total</th>
-                    <th style="width:80px;">Action</th>
+                    <th class="d-none d-md-table-cell">Produit</th>
+                    <th class="d-md-none">Produit</th>
+                    <th style="width:60px; font-size:0.9rem;">Qté</th>
+                    <th class="d-none d-sm-table-cell" style="width:100px; font-size:0.9rem;">Prix unit.</th>
+                    <th class="d-none d-lg-table-cell" style="width:100px; font-size:0.9rem;">Sous-total</th>
+                    <th style="width:50px;">Action</th>
                 </tr>
             </thead>
             <tbody id="item_list"></tbody>
@@ -28,24 +40,23 @@
 </div>
 <div class="row">
     <div class="col-md-8 mx-auto">
-        <form method="post" id="form-commande" class="border p-4 bg-light rounded">
+        <form method="post" id="form-commande" class="border p-4 bg-light rounded" action="/paiement/">
             {% csrf_token %}
             <input type="hidden" name="panier" id="panier-hidden">
             <h4 class="mb-4">Informations de livraison</h4>
             <div class="mb-3"><input type="text" name="nom" class="form-control" placeholder="Nom complet" required>
             </div>
             <div class="mb-3"><input type="email" name="email" class="form-control" placeholder="Email" required></div>
-            <div class="mb-3"><input type="text" name="address" class="form-control" placeholder="Adresse" required>
-            </div>
-            <div class="row">
-                <div class="col"><input type="text" name="ville" class="form-control" placeholder="Ville" required>
-                </div>
-                <div class="col"><select name="pays" class="form-control">
+            <div class="mb-3"><input type="tel" name="telephone" class="form-control" placeholder="Numéro de téléphone" required></div>
+            <div class="mb-3"><input type="text" name="address" class="form-control" placeholder="Adresse" required></div>
+            <div class="row g-2">
+                <div class="col-12 col-md-6"><input type="text" name="ville" class="form-control" placeholder="Ville" required></div>
+                <div class="col-12 col-md-6"><select name="pays" class="form-control">
                         <option>Côte d'Ivoire</option>
                         <option>Mali</option>
                     </select></div>
-                <div class="col"><input type="text" name="zipcode" class="form-control" placeholder="Code postal"></div>
             </div>
+            <div class="mb-3"><input type="text" name="zipcode" class="form-control" placeholder="Code postal"></div>
             <button type="submit" class="btn btn-primary mt-4 w-100">Confirmer la commande</button>
         </form>
     </div>
@@ -80,7 +91,6 @@
         }
 
         for (let [id, item] of Object.entries(panier)) {
-            console.log('Item:', id, item); // Debug
             let quantite = parseInt(item.quantite) || 1;
             let prix = parseFloat(item.prix_unitaire) || 0;
             let sousTotal = quantite * prix;
@@ -88,11 +98,11 @@
             qte_total += quantite;
             html += `
                 <tr>
-                    <td>${item.nom || 'Produit'}</td>
-                    <td><input type="number" min="1" value="${quantite}" class="form-control form-control-sm" onchange="changerQuantite(${id}, this.value)"></td>
-                    <td>${prix.toFixed(0)} FCFA</td>
-                    <td>${sousTotal.toFixed(0)} FCFA</td>
-                    <td><button class="btn btn-sm btn-danger" onclick="supprimerProduit(${id})">✕</button></td>
+                    <td><small class="d-md-none d-inline">${item.nom || 'Produit'}</small><span class="d-none d-md-inline">${item.nom || 'Produit'}</span></td>
+                    <td><input type="number" min="1" value="${quantite}" class="form-control form-control-sm" style="max-width:60px;" onchange="changerQuantite(${id}, this.value)"></td>
+                    <td class="d-none d-sm-table-cell"><small>${prix.toFixed(0)} F</small></td>
+                    <td class="d-none d-lg-table-cell"><small>${sousTotal.toFixed(0)} F</small></td>
+                    <td><button class="btn btn-sm btn-danger" onclick="supprimerProduit(${id})" style="padding:2px 6px; font-size:0.8rem;">✕</button></td>
                 </tr>
             `;
         }
@@ -108,9 +118,32 @@
 
     function supprimerProduit(produitId) {
         if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-            delete panier[produitId];
-            afficherPanier();
+            fetch('/retirer-panier-api/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'product_id=' + produitId
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Suppression immédiate côté client
+                    delete panier[produitId];
+                    afficherPanier();
+                    afficherMessage('Suppression confirmée !');
+                    if (typeof updateBadge === 'function') updateBadge(); // Met à jour le badge navbar
+                }
+            });
         }
+    }
+
+    function afficherMessage(msg) {
+        const msgDiv = document.getElementById('panier-message');
+        msgDiv.textContent = msg;
+        msgDiv.style.display = 'block';
+        setTimeout(() => { msgDiv.style.display = 'none'; }, 2000);
     }
 
     function changerQuantite(produitId, newQte) {
@@ -123,11 +156,29 @@
     chargerPanier();
 
     document.getElementById('form-commande').addEventListener('submit', function (e) {
+        // Mettre à jour le champ panier caché avant l'envoi
+        document.getElementById('panier-hidden').value = JSON.stringify(panier);
+        
+        console.log('Soumission du formulaire, panier:', panier);
+        console.log('Panier caché:', document.getElementById('panier-hidden').value);
+        
         if (Object.keys(panier).length === 0) {
             e.preventDefault();
-            alert('Votre panier est vide !');
+            alert('Votre panier est vide ! Veuillez ajouter des produits avant de commander.');
             return false;
         }
     });
 </script>
+</script>
+<style>
+    @media (max-width: 576px) {
+        #panier-table th, #panier-table td {
+            font-size: 0.95rem;
+            padding: 0.4rem 0.2rem;
+        }
+        .form-control, .btn {
+            font-size: 1rem;
+        }
+    }
+</style>
 {% endblock %}
