@@ -1,315 +1,336 @@
 <!DOCTYPE html>
 <html lang="fr">
+  {% load static %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <title>Shop-in-Line</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: linear-gradient(135deg, #6f2da8 0%, #a855f7 50%, #d946ef 100%);
-      background-attachment: fixed;
-      font-family: 'Segoe UI', system-ui;
-      min-height: 100vh;
-    }
-
-    .navbar {
-      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
-      padding: 0.8rem 0;
-    }
-
-    .navbar-brand {
-      font-weight: 800;
-      font-size: 1.5rem;
-      color: #fff !important;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      letter-spacing: 0.5px;
-    }
-
-    .navbar-nav .nav-link {
-      color: rgba(255, 255, 255, 0.9) !important;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
-
-    .navbar-nav .nav-link:hover {
-      color: #fff !important;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 0.5rem;
-    }
-
-    .dropdown-menu {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-      border: none !important;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .dropdown-menu .dropdown-item {
-      color: rgba(255, 255, 255, 0.9) !important;
-      transition: all 0.3s ease;
-    }
-
-    .dropdown-menu .dropdown-item:hover {
-      background: rgba(255, 255, 255, 0.2) !important;
-      color: #fff !important;
-    }
-
-    .btn-outline-primary {
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.5);
-      background: transparent;
-      transition: all 0.3s ease;
-    }
-
-    .btn-outline-primary:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: #fff;
-      color: #fff;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-      border: none;
-      font-weight: 600;
-      box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4);
-      transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
-      background: linear-gradient(135deg, #6f2da8 0%, #a855f7 100%);
-    }
-
-    .btn-light {
-      background: rgba(255, 255, 255, 0.2) !important;
-      color: #fff !important;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transition: all 0.3s ease;
-    }
-
-    .btn-light:hover {
-      background: rgba(255, 255, 255, 0.3) !important;
-    }
-
-    main.container {
-      animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Shop-in-Line</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      
+      body {
+        background: linear-gradient(135deg, #6f2da8 0%, #a855f7 50%, #d946ef 100%);
+        background-attachment: fixed;
+        font-family: 'Segoe UI', system-ui;
+        min-height: 100vh;
       }
-    }
+      
+      .navbar {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+        padding: 0.8rem 0;
+      }
+      
+      .navbar-brand {
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: #fff !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
+      }
+      
+      .navbar-nav .nav-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      
+      .navbar-nav .nav-link:hover {
+        color: #fff !important;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+      }
+      
+      .dropdown-menu {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border: none !important;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+      
+      .dropdown-menu .dropdown-item {
+        color: rgba(255, 255, 255, 0.9) !important;
+        transition: all 0.3s ease;
+      }
+      
+      .dropdown-menu .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #fff !important;
+      }
+      
+      .btn-outline-primary {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.5);
+        background: transparent;
+        transition: all 0.3s ease;
+      }
+      
+      .btn-outline-primary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #fff;
+        color: #fff;
+      }
+      
+      .btn-primary {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        border: none;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4);
+        transition: all 0.3s ease;
+      }
+      
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        background: linear-gradient(135deg, #6f2da8 0%, #a855f7 100%);
+      }
+      
+      .btn-light {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #fff !important;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .btn-light:hover {
+        background: rgba(255, 255, 255, 0.3) !important;
+      }
+      
+      main.container {
+        animation: fadeIn 0.5s ease-in;
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+      
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .card {
+        border: none;
+        border-radius: 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+      }
+      
+      .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(168, 85, 247, 0.35);
+      }
+      
+      .card-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        color: white;
+        border: none !important;
+        font-weight: 600;
+      }
+      
+      .alert {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      footer {
+        margin-top: 4rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+        padding: 2rem 1rem;
+        font-weight: 500;
+      }
+      
+      .toast-custom {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1100;
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+        box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+        border-radius: 1rem;
+      }
+      
+      .toast-custom.bg-success {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+      }
+      
+      .form-control {
+        border: 2px solid rgba(168, 85, 247, 0.2);
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+      }
+      
+      .form-control:focus {
+        border-color: #a855f7;
+        box-shadow: 0 0 0 0.2rem rgba(168, 85, 247, 0.2);
+        background: white;
+      }
+      
+      .badge {
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      
+      .badge.bg-success {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+      }
+      
+      .badge.bg-danger {
+        background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%) !important;
+      }
+      
+      .badge.bg-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
+      }
+      
+      .dropdown-toggle::after {
+        display: none;
+      }
+    </style>
+  </head>
 
-    .card {
-      border: none;
-      border-radius: 1.5rem;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: hidden;
-    }
-
-    .card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(168, 85, 247, 0.35);
-    }
-
-    .card-header {
-      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-      color: white;
-      border: none !important;
-      font-weight: 600;
-    }
-
-    .alert {
-      background: rgba(255, 255, 255, 0.95);
-      border: none;
-      border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    footer {
-      margin-top: 4rem;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.8);
-      padding: 2rem 1rem;
-      font-weight: 500;
-    }
-
-    .toast-custom {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1100;
-      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
-      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
-      border-radius: 1rem;
-    }
-
-    .toast-custom.bg-success {
-      background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
-    }
-
-    .form-control {
-      border: 2px solid rgba(168, 85, 247, 0.2);
-      border-radius: 0.8rem;
-      background: rgba(255, 255, 255, 0.9);
-      transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-      border-color: #a855f7;
-      box-shadow: 0 0 0 0.2rem rgba(168, 85, 247, 0.2);
-      background: white;
-    }
-
-    .badge {
-      font-weight: 600;
-      padding: 0.5rem 0.75rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .badge.bg-success {
-      background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
-    }
-
-    .badge.bg-danger {
-      background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%) !important;
-    }
-
-    .badge.bg-warning {
-      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
-    }
-
-    .dropdown-toggle::after {
-      display: none;
-    }
-  </style>
-</head>
-
-<body>
-  <nav class="navbar navbar-expand-lg sticky-top">
-    <div class="container">
-      <a class="navbar-brand" href="{% url 'index' %}"><i class="fab fa-shopify me-2"></i>Shop-in-Line</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarMain">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Accueil</a></li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Catégories</a>
-            <ul class="dropdown-menu" style="max-height: 400px; overflow-y: auto;">
-              <li><a class="dropdown-item" href="{% url 'index' %}">Toutes</a></li>
-              {% for cat in categories_nav %}
-              <li><a class="dropdown-item" href="{% url 'index' %}?category={{ cat.nom }}">{{ cat.nom }}</a></li>
-              {% endfor %}
-              {% if has_more_categories %}
-              <li>
-                <hr class="dropdown-divider">
+  <body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}"><i class="fab fa-shopify me-2"></i>Shop-in-Line</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'index' %}">Accueil</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Catégories</a>
+              <ul class="dropdown-menu" style="max-height: 400px; overflow-y: auto;">
+                <li>
+                  <a class="dropdown-item" href="{% url 'index' %}">Toutes</a>
+                </li>
+                {% for cat in categories_nav %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'index' %}?category={{ cat.nom }}">{{ cat.nom }}</a>
+                  </li>
+                {% endfor %}
+                {% if has_more_categories %}
+                  <li>
+                    <hr class="dropdown-divider" />
+                  </li>
+                  <li>
+                    <a class="dropdown-item text-primary fw-bold" href="{% url 'toutes_categories' %}"><i class="fas fa-list"></i> Toutes les catégories ({{ total_categories }})</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </li>
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
               </li>
-              <li><a class="dropdown-item text-primary fw-bold" href="{% url 'toutes_categories' %}">
-                  <i class="fas fa-list"></i> Toutes les catégories ({{ total_categories }})
-                </a></li>
-              {% endif %}
-            </ul>
-          </li>
-          {% if user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'commandes_reçues' %}">Commandes reçues</a></li>
-          {% endif %}
-        </ul>
-        <div class="d-flex align-items-center gap-4">
-          <button id="panierBtn" class="btn btn-outline-primary position-relative" data-bs-toggle="popover"
-            data-bs-placement="bottom" data-bs-html="true" title="Mon panier">
-            <i class="fas fa-shopping-cart"></i> Panier
-            <span id="compteur-panier"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-          </button>
-          {% if user.is_authenticated %}
-          <div class="dropdown ms-2">
-            <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-              <img src="{{ user.photo_url }}" width="30" height="30" class="rounded-circle me-1">
-              {{ user.username }}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'commandes_reçues' %}">Commandes reçues</a>
+              </li>
+            {% endif %}
+          </ul>
+          <div class="d-flex align-items-center gap-4">
+            <button id="panierBtn" class="btn btn-outline-primary position-relative" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-html="true" title="Mon panier">
+              <i class="fas fa-shopping-cart"></i> Panier
+              <span id="compteur-panier" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{% url 'dashboard' %}">Profil</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li>
-                <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button class="dropdown-item"
-                    type="submit">Déconnexion</button></form>
-              </li>
-            </ul>
+            {% if user.is_authenticated %}
+              <div class="dropdown ms-2">
+                <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                  {% if user.photo %}
+                    <img src="{{ user.photo.url }}" width="30" height="30" class="rounded-circle me-1" />
+                  {% else %}
+                    <img src="{% static 'images/default-avatar.png' %}" width="30" height="30" class="rounded-circle me-1" />
+                  {% endif %}
+                  {{ user.username }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'dashboard' %}">Profil</a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider" />
+                  </li>
+                  <li>
+                    <form action="{% url 'logout' %}" method="post">
+                      {% csrf_token %}<button class="dropdown-item" type="submit">Déconnexion</button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            {% else %}
+              <a href="{% url 'login' %}" class="btn btn-primary">Connexion</a>
+              <a href="{% url 'register' %}" class="btn btn-outline-secondary">Inscription</a>
+            {% endif %}
           </div>
-          {% else %}
-          <a href="{% url 'login' %}" class="btn btn-primary">Connexion</a>
-          <a href="{% url 'register' %}" class="btn btn-outline-secondary">Inscription</a>
-          {% endif %}
         </div>
       </div>
+    </nav>
+
+    <main class="container my-4">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}
+      {% endblock %}
+    </main>
+
+    <footer>
+      <div class="container">© 2025 Shop-in-Line - Tous droits réservés</div>
+    </footer>
+
+    <div id="toastMsg" class="toast-custom toast align-items-center text-white bg-success border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body"></div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
     </div>
-  </nav>
 
-  <main class="container my-4">
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">{{ message }}<button type="button"
-        class="btn-close" data-bs-dismiss="alert"></button></div>
-    {% endfor %}
-    {% endif %}
-    {% block content %}{% endblock %}
-  </main>
-
-  <footer>
-    <div class="container">© 2025 Shop-in-Line - Tous droits réservés</div>
-  </footer>
-
-  <div id="toastMsg" class="toast-custom toast align-items-center text-white bg-success border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body"></div><button type="button" class="btn-close btn-close-white me-2 m-auto"
-        data-bs-dismiss="toast"></button>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function showToast(msg) { let t = document.getElementById('toastMsg'); t.querySelector('.toast-body').innerText = msg; new bootstrap.Toast(t, { delay: 2000 }).show(); }
-    function updateBadge() {
-      fetch('/get-panier-info/').then(r => r.json()).then(data => {
-        document.getElementById('compteur-panier').innerText = data.quantite_totale || 0;
-        let content = '<ul class="list-unstyled">';
-        for (let [id, item] of Object.entries(data.panier || {})) content += `<li><strong>${item.nom}</strong> x ${item.quantite} - ${(item.prix_unitaire * item.quantite).toFixed(0)} FCFA</li>`;
-        content += '</ul><hr><a href="/paiement/" class="btn btn-sm btn-primary w-100">Passer commande</a>';
-        const btn = document.getElementById('panierBtn');
-        btn.setAttribute('data-bs-content', content);
-        new bootstrap.Popover(btn, { trigger: 'focus', html: true });
-      });
-    }
-    document.addEventListener('DOMContentLoaded', updateBadge);
-  </script>
-  {% block js %}{% endblock %}
-</body>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function showToast(msg) {
+        let t = document.getElementById('toastMsg')
+        t.querySelector('.toast-body').innerText = msg
+        new bootstrap.Toast(t, { delay: 2000 }).show()
+      }
+      function updateBadge() {
+        fetch('/get-panier-info/')
+          .then((r) => r.json())
+          .then((data) => {
+            document.getElementById('compteur-panier').innerText = data.quantite_totale || 0
+            let content = '<ul class="list-unstyled">'
+            for (let [id, item] of Object.entries(data.panier || {})) content += `<li><strong>${item.nom}</strong> x ${item.quantite} - ${(item.prix_unitaire * item.quantite).toFixed(0)} FCFA</li>`
+            content += '</ul><hr><a href="/paiement/" class="btn btn-sm btn-primary w-100">Passer commande</a>'
+            const btn = document.getElementById('panierBtn')
+            btn.setAttribute('data-bs-content', content)
+            new bootstrap.Popover(btn, { trigger: 'focus', html: true })
+          })
+      }
+      document.addEventListener('DOMContentLoaded', updateBadge)
+    </script>
+    {% block js %}
+    {% endblock %}
+  </body>
 </html>

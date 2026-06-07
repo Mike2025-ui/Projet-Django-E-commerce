@@ -6,7 +6,11 @@
     <!-- Affichage du produit -->
     <div class="row mb-4">
       <div class="col-md-6 text-center">
-        <img src="{{ product.get_image }}" class="img-fluid rounded shadow" style="max-height: 400px;" />
+        {% if product.image %}
+         <img src="{{ product.image.url }}" class="img-fluid rounded shadow" style="max-height: 400px;" />
+        {% else %}
+         <img src="{% static 'images/default-product.png' %}" class="img-fluid rounded shadow" style="max-height: 400px;" />
+        {% endif %}
       </div>
 
       <div class="col-md-6">
@@ -53,11 +57,15 @@
           <div class="card h-100">
             <div class="card-body">
               <div class="d-flex gap-2 align-items-center mb-2">
-                <img src="{{ rev.user.photo_url }}" width="40" height="40" class="rounded-circle" />
+                {% if rev.user.photo %}
+                  <img src="{{ rev.user.photo.url }}" width="40" height="40" class="rounded-circle" />
+                {% else %}
+                  <img src="{% static 'images/default-avatar.png' %}" width="40" height="40" class="rounded-circle" />
+                {% endif %}
                 <div>
                   <strong>{{ rev.user.username }}</strong>
                   <div class="text-warning small">
-                    {% for i in "12345" %}
+                    {% for i in 12345 %}
                       {% if forloop.counter <= rev.note %}
                         ★
                       {% else %}
@@ -99,7 +107,7 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">Note</label>
                   <div class="rating" id="ratingContainer">
-                    {% for i in "12345" %}
+                    {% for i in 12345 %}
                       <input type="radio" name="note" value="{{ i }}" id="star{{ i }}" required />
                       <label for="star{{ i }}">★</label>
                     {% endfor %}

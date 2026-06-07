@@ -5,7 +5,11 @@
     <div class="col-md-4">
       <div class="card text-center">
         <div class="card-body">
-          <img src="{{ user.photo_url }}" class="rounded-circle mb-3" width="120" height="120" />
+          {% if user.photo %}
+            <img src="{{ user.photo.url }}" class="rounded-circle mb-3" width="120" height="120" />
+          {% else %}
+            <img src="{% static 'images/default-avatar.png' %}" class="rounded-circle mb-3" width="120" height="120" />
+          {% endif %}
           <h4>{{ user.username }}</h4>
           <p>{{ user.email }}</p>
 

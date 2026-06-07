@@ -8,11 +8,12 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-moi-en-prod")
-DEBUG = False  # Enable for development - change to False in production
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
-
-# Autoriser tous les hôtes en développement (à restreindre en production)
-ALLOWED_HOSTS = ["micou.pythonanywhere.com", "localhost", "127.0.0.1"]
+# Autoriser les hôtes locaux par défaut et ajouter ceux de l'environnement
+DEFAULT_ALLOWED_HOSTS = ["micou.pythonanywhere.com", "localhost", "127.0.0.1"]
+env_hosts = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()]
+ALLOWED_HOSTS = list(dict.fromkeys(DEFAULT_ALLOWED_HOSTS + env_hosts))
 
 # Database
 if os.getenv("DATABASE_URL"):
